@@ -1,0 +1,9 @@
+@import '@/variables';
+@import '@/mixins';
+
+@import url('https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;700&display=swap');
+
+body {
+    background-color: $primary;
+    font-family: 'Jost', 'Noto Sans TC', sans-serif;
+}

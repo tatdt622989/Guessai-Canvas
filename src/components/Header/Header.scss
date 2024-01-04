@@ -1,0 +1,41 @@
+@import "@/variables";
+@import "@/mixins";
+
+.header {
+  background: $primary;
+  height: 96px;
+  .title {
+    color: $secondary;
+    font-size: 28px;
+    font-style: normal;
+    font-weight: 800;
+    line-height: normal;
+    letter-spacing: 0.28px;
+  }
+  .info {
+		.user-name {
+			color: $secondary;
+      font-size: 28px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: normal;
+      letter-spacing: 0.56px;
+			margin-right: 14px;
+      @include oneLineEllipsis;
+    }
+		.user-photo {
+			width: 45px;
+			height: 45px;
+			border-radius: 50%;
+			background: $secondary;
+			flex-shrink: 0;
+      .icon {
+        width: 32px;
+        height: 32px;
+        path  {
+          fill: $primary;
+        }
+      }
+		}
+  }
+}
