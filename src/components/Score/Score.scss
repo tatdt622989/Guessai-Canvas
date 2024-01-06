@@ -1,0 +1,48 @@
+@import "@/variables";
+@import "@/mixins";
+
+.score {
+  background: $secondary;
+  border-radius: 20px;
+  box-shadow: 0px 0px 35px 0px rgba(34, 51, 59, 0.48);
+  width: 100%;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  @include media(992) {
+    display: none;
+  }
+  @include media(575) {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+  }
+  &.mobile {
+    display: block;
+    @include media(-992) {
+      display: none;
+    }
+  }
+  .score-title {
+    color: #748085;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    letter-spacing: 0.48px;
+    @include media(575) {
+      font-size: 18px;
+    }
+  }
+  .score-value {
+    color: $primary;
+    font-family: Jost;
+    font-size: 43px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    letter-spacing: 0.86px;
+    @include media(575) {
+      font-size: 32px;
+    }
+  }
+}

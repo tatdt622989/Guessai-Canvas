@@ -1,0 +1,93 @@
+@import "@/variables";
+@import "@/mixins";
+
+.canvas {
+    min-height: 400px;
+    aspect-ratio: 16/9;
+    background: $quaternary;
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
+    @include media(768) {
+        min-height: 200px;
+    }
+    @include media(575) {
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+    .canvas-container {
+        display: flex;
+        height: 100%;
+        width: 100%;
+        border-radius: 16px;
+        justify-content: center;
+        overflow: hidden;
+        @include media(575) {
+            border-radius: 12px;
+        }
+        
+        .default {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            .bg {
+                display: flex;
+                width: 100%;
+                height: 100%;
+                transform: rotate(45deg) scale(1.2, 2.5);
+                // loading linear-gradient animation
+                @keyframes loading {
+                    0% {
+                        background-position: 0% 0%;
+                    }
+                    50% {
+                        background-position: 200% 0%;
+                    }
+                    100% {
+                        background-position: 400% 0%;
+                    }
+                }
+                background: linear-gradient(90deg, #373532, #7b7b7b, #373532);
+                background-size: 400% 100%;
+                animation: loading 3.6s ease-in-out infinite forwards;
+            }
+            .text {
+                color: $primary;
+                font-size: 48px;
+                font-style: normal;
+                font-weight: 700;
+                line-height: normal;
+                letter-spacing: 0.24px;
+                text-align: center;
+                letter-spacing: 1px;
+                display: flex;
+                position: absolute;
+                @include media(575) {
+                    font-size: 32px;
+                }
+                span {
+                    @for $i from 1 through 10 {
+                        &:nth-of-type(#{$i}) {
+                            @keyframes text-wave {
+                                0% {
+                                    transform: translateY(0);
+                                }
+                                50% {
+                                    transform: translateY(-6px);
+                                }
+                                100% {
+                                    transform: translateY(0);
+                                }
+                            }
+                            animation: text-wave 1s ease-in-out infinite 0.1*$i + s;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

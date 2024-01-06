@@ -1,0 +1,107 @@
+@import "@/variables";
+@import "@/mixins";
+
+.ranking {
+  border-radius: 20px;
+  background: $tertiary;
+  flex-grow: 1;
+  min-height: 0;
+	@include media(992) {
+		margin-top: 20px;
+	}
+	@include media(575) {
+		margin-top: 16px;
+	}
+  &-container {
+    @include scrollbar(6px, $secondary, #c5b39f);
+  }
+  &-head {
+    padding: 20px;
+    z-index: 1;
+    background: $tertiary;
+		@include media(1200) {
+			padding: 10px 15px;
+		}
+    svg {
+      margin-right: 12px;
+    }
+  }
+  &-title {
+    color: $secondary;
+    font-size: 28px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    letter-spacing: 0.56px;
+  }
+  &-list {
+  }
+  &-item {
+    padding: 15px 20px;
+    @include media(1200) {
+      padding: 10px 15px;
+    }
+    &:nth-of-type(2n) {
+      background: #c5b39f;
+    }
+    &-photo {
+      width: 48px;
+      height: 48px;
+      position: relative;
+      background: $secondary;
+      border-radius: 50%;
+      flex-shrink: 0;
+      overflow: hidden;
+      .icon {
+        position: absolute;
+        transform: translate(-50%, -50%);
+        top: 50%;
+        left: 50%;
+        width: 32px;
+        height: 32px;
+        path {
+          fill: $primary;
+        }
+      }
+    }
+    &-name {
+      color: $secondary;
+      font-size: 24px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: normal;
+      letter-spacing: 0.56px;
+      @include oneLineEllipsis;
+      @include media(1200) {
+				font-size: 18px;
+			}
+    }
+    &-score {
+      color: $secondary;
+      font-size: 24px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: normal;
+      letter-spacing: 0.56px;
+      margin-left: auto;
+			padding-left: 10px;
+			@include media(1200) {
+				font-size: 18px;
+			}
+    }
+  }
+  &-no {
+    svg {
+      width: 36px;
+      height: 36px;
+    }
+    .number {
+      position: absolute;
+      font-size: 18px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: normal;
+      letter-spacing: 0px;
+    }
+  }
+}

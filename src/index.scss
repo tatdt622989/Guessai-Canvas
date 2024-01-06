@@ -6,4 +6,24 @@
 body {
     background-color: $primary;
     font-family: 'Jost', 'Noto Sans TC', sans-serif;
+    padding-bottom: 45px;
+    @include media(575) {
+        padding-top: 8px;
+    }
+}
+
+.copyright {
+    font-size: 20px;
+    font-weight: 500;
+    @include media(575) {
+        font-size: 16px;
+    }
+    a {
+        color: $secondary;
+        text-decoration: none;
+        padding: 0 5px;
+        &:hover {
+            color: #54656C;
+        }
+    }
 }

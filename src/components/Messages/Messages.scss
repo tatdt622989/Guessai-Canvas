@@ -1,0 +1,82 @@
+@import "@/variables";
+@import "@/mixins";
+
+.messages {
+  background: $secondary;
+  height: 400px;
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  align-items: stretch;
+  @include media(575) {
+    height: 300px;
+    padding: 16px;
+  }
+  .messages-container {
+    display: flex;
+    flex-direction: column;
+  }
+  .messages-content {
+    border-radius: 16px;
+    background: #54656c;
+    flex-grow: 1;
+    margin-bottom: 20px;
+    min-height: 0;
+    @include media(575) {
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+  }
+  .messages-input {
+    display: flex;
+    flex-shrink: 0;
+    input {
+      border-radius: 20px 0 0 20px;
+      background: $primary;
+      border: 0;
+      height: 40px;
+      padding: 0 20px;
+      font-size: 18px;
+      width: auto;
+      flex-grow: 1;
+      min-width: 0;
+      @include media(575) {
+        font-size: 16px;
+        padding: 0 16px;
+      }
+      @include media(374) {
+        width: 65%;
+        font-size: 14px;
+        padding: 0 10px;
+      }
+    }
+    .send-btn {
+      border-radius: 0 20px 20px 0;
+      border: 0;
+      background: $tertiary;
+      color: $secondary;
+      font-size: 24px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: normal;
+      letter-spacing: 0.24px;
+      padding: 0 20px;
+      width: 160px;
+      min-width: 0;
+      cursor: pointer;
+      @include media(575) {
+        width: 25%;
+        font-size: 20px;
+        padding: 0 5px;
+      }
+      @include media(374) {
+        width: 22%;
+        font-size: 16px;
+        padding: 0 5px;
+      }
+      &:hover {
+        background: darken($tertiary, 10%);
+      }
+    }
+  }
+}

@@ -4,3 +4,29 @@
   white-space: nowrap;
   width: $width;
 }
+
+@mixin scrollbar($width: 10px, $color: #ccc, $bg: #fff) {
+  &::-webkit-scrollbar {
+    width: $width;
+    height: $width;
+  }
+  &::-webkit-scrollbar-track {
+    background-color: $bg;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: $color;
+  }
+}
+
+@mixin media($w) {
+  @if ($w < 0) {
+      @media (min-width: (-$w + px))  {
+          @content;
+      }
+  } @else {
+      @media (max-width: ($w + px))  {
+          @content;
+      }
+  }
+}
