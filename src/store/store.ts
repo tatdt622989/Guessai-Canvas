@@ -1,7 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit'
+import modalReducer from '@/components/Modal/ModalSlice'
 
 export const store = configureStore({
-  reducer: {},
+  reducer: {
+    modal: modalReducer,
+  },
 })
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

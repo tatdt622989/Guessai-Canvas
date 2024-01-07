@@ -4,6 +4,7 @@ import Canvas from "./components/Canvas/Canvas.tsx";
 import Messages from "./components/Messages/Messages.tsx";
 import Ranking from "./components/Ranking/Ranking.tsx";
 import Score from "./components/Score/Score.tsx";
+import SignUpModal from "./components/Modal/SignUpModal.tsx";
 import "./App.css";
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
            All Rights Reserved.
         </div>
       </div>
+      <SignUpModal />
     </div>
   );
 }
