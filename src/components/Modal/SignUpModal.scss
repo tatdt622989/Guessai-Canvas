@@ -25,6 +25,7 @@
       border-radius: 50%;
       background: $secondary;
       margin-bottom: 35px;
+			border: 2px solid $secondary;
       filter: drop-shadow(0px 0px 35px rgba(34, 51, 59, 0.4));
       > .icon {
         width: 90px;
@@ -68,6 +69,9 @@
           pointer-events: none;
         }
       }
+			img {
+				object-fit: cover;
+			}
     }
     .user-name {
       background: #d2c0ab;
@@ -103,4 +107,18 @@
 			}
     }
   }
+	.recaptchaInfo {
+		color: lighten($secondary, 30%);
+		padding-top: 16px;
+		line-height: 1.2;
+		font-weight: 400;
+		a {
+			color: $secondary;
+			text-decoration: none;
+			transition: color 0.3s ease-in-out;
+			&:hover {
+				color: lighten($secondary, 30%);
+			}
+		}
+	}
 }

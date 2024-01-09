@@ -5,12 +5,20 @@ import Messages from "./components/Messages/Messages.tsx";
 import Ranking from "./components/Ranking/Ranking.tsx";
 import Score from "./components/Score/Score.tsx";
 import SignUpModal from "./components/Modal/SignUpModal.tsx";
+import { useDispatch } from "react-redux";
+import { fetchUser } from "@/store/userSlice";
 import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0);
   const [canvasHeight, setCanvasHeight] = useState(0);
   const canvasWrapRef = useRef<HTMLDivElement>(null);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    console.log("mount");
+    // get user data
+    dispatch(fetchUser());
+  }, [dispatch]);
 
   // get canvas height
   useEffect(() => {
@@ -20,11 +28,11 @@ function App() {
         setCanvasHeight(canvasWrapElement.clientHeight);
       }
     }
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
     handleResize();
     return () => {
-      window.removeEventListener('resize', handleResize);
-    }
+      window.removeEventListener("resize", handleResize);
+    };
   }, [canvasWrapRef]);
 
   return (
@@ -32,7 +40,7 @@ function App() {
       <div className="row">
         <Header />
         <div className="col-12 col-lg-8">
-          <Score position={'mobile'} />
+          <Score position={"mobile"} />
           <Canvas ref={canvasWrapRef} />
           <Messages />
         </div>
@@ -42,8 +50,10 @@ function App() {
         </div>
         <div className="copyright w-100 d-flex align-items-center justify-content-start py-4">
           © {new Date().getFullYear()}
-          <a href="https://6yuwei.com" target="_blank">6yuwei</a>.
-           All Rights Reserved.
+          <a href="https://6yuwei.com" target="_blank">
+            6yuwei
+          </a>
+          . All Rights Reserved.
         </div>
       </div>
       <SignUpModal />

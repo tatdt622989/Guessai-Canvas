@@ -9,12 +9,12 @@ const ModalSlice = createSlice({
     name: 'Modal',
     initialState,
     reducers: {
-        SignUpModal: (state, action: PayloadAction<boolean>) => {
+        setSignUpModal: (state, action: PayloadAction<boolean>) => {
             state.SignUpModal = action.payload
         },
     },
 })
 
-export const { SignUpModal } = ModalSlice.actions
+export const { setSignUpModal } = ModalSlice.actions
 
 export default ModalSlice.reducer
