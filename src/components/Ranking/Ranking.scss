@@ -6,22 +6,28 @@
   background: $tertiary;
   flex-grow: 1;
   min-height: 0;
-	@include media(992) {
-		margin-top: 20px;
-	}
-	@include media(575) {
-		margin-top: 16px;
-	}
+  @include media(992) {
+    margin-top: 20px;
+  }
+  @include media(575) {
+    margin-top: 16px;
+    max-height: initial !important;
+    height: auto !important;
+  }
   &-container {
     @include scrollbar(6px, $secondary, #c5b39f);
+    @include media(575) {
+      max-height: initial !important;
+      height: auto !important;
+    }
   }
   &-head {
     padding: 20px;
     z-index: 1;
     background: $tertiary;
-		@include media(1200) {
-			padding: 10px 15px;
-		}
+    @include media(1200) {
+      padding: 10px 15px;
+    }
     svg {
       margin-right: 12px;
     }
@@ -73,8 +79,8 @@
       letter-spacing: 0.56px;
       @include oneLineEllipsis;
       @include media(1200) {
-				font-size: 18px;
-			}
+        font-size: 18px;
+      }
     }
     &-score {
       color: $secondary;
@@ -84,10 +90,10 @@
       line-height: normal;
       letter-spacing: 0.56px;
       margin-left: auto;
-			padding-left: 10px;
-			@include media(1200) {
-				font-size: 18px;
-			}
+      padding-left: 10px;
+      @include media(1200) {
+        font-size: 18px;
+      }
     }
   }
   &-no {

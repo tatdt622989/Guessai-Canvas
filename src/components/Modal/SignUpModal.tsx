@@ -1,91 +1,102 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import type { RootState } from "@/store/store";
 import { useSelector, useDispatch } from "react-redux";
-import { setName, setPhotoURL, setScore } from "@/store/userSlice";
-import { setSignUpModal } from "@/components/Modal/modalSlice";
+import { setName, setPhotoURL, setScore } from "@/store/UserSlice.ts";
+import { setSignUpModal } from "@/components/Modal/ModalSlice.ts";
 import API_URL from "@/config";
 import UserIcon from "@/assets/user.svg?react";
 import UploadIcon from "@/assets/upload.svg?react";
 import "./SignUpModal.scss";
 
 interface ReCaptchaV2 {
-	ready: (callback: () => void) => void;
-	execute: (siteKey: string, options: { action: string }) => Promise<string>;
+  ready: (callback: () => void) => void;
+  execute: (siteKey: string, options: { action: string }) => Promise<string>;
 }
 
 declare global {
-	interface Window {
-		grecaptcha: ReCaptchaV2;
-	}
+  interface Window {
+    grecaptcha: ReCaptchaV2;
+  }
 }
 
 interface UserRes {
-	name: string;
-	photo: string;
-	score: number;
+  name: string;
+  photo: string;
+  score: number;
 }
 
 function SignUpModal() {
-	const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const modalStatus = useSelector(
-    (state: RootState) => state.modal.SignUpModal
+    (state: RootState) => state.modal.signUpModal
   );
-	const [username, setUsername] = useState('');
-	const [photo, setPhoto] = useState<Blob | null>(null);
-	const [photoName, setPhotoName] = useState('');
-	const [photoBase64, setPhotoBase64] = useState('');
+  const [username, setUsername] = useState("");
+  const [photo, setPhoto] = useState<Blob | null>(null);
+  const [photoName, setPhotoName] = useState("");
+  const [photoBase64, setPhotoBase64] = useState("");
 
-	const handleVerifyCaptcha = useCallback(async () => {
-		return new Promise((resolve, reject) => {
-			(window).grecaptcha.ready(() => {
-				(window).grecaptcha.execute('6LeeIuglAAAAAGa_otd0JHxSOUQbFttupNnSHEuT', { action: 'submit' }).then(token => {
-					resolve(token);
-				}).catch(err => {
-					reject(err);
-				});
-			});
-		});
+  const handleVerifyCaptcha = useCallback(async () => {
+    return new Promise((resolve, reject) => {
+      window.grecaptcha.ready(() => {
+        window.grecaptcha
+          .execute("6LeeIuglAAAAAGa_otd0JHxSOUQbFttupNnSHEuT", {
+            action: "submit",
+          })
+          .then((token) => {
+            resolve(token);
+          })
+          .catch((err) => {
+            reject(err);
+          });
+      });
+    });
   }, []);
 
-	const handlePhotoChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files?.[0];
-		if (file) {
-			setPhoto(file);
-			setPhotoName(file.name);
-			const reader = new FileReader();
-			reader.readAsDataURL(file);
-			reader.onload = () => {
-				setPhotoBase64(reader.result as string);
-			};
-		}
-	}, []);
+  const handlePhotoChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        setPhoto(file);
+        setPhotoName(file.name);
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+          setPhotoBase64(reader.result as string);
+        };
+      }
+    },
+    []
+  );
 
-	const handleUsernameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-		setUsername(e.target.value);
-	}, []);
+  const handleUsernameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setUsername(e.target.value);
+    },
+    []
+  );
 
   const createUser = useCallback(async () => {
-		const token = await handleVerifyCaptcha();
-		const api = `${API_URL}/guessai_canvas/simple_user/`;
-		const formData = new FormData();
-		formData.append('name', username);
-		if (photo) {
-			formData.append('photo', photo, photoName);
-		}
-		formData.append('token', String(token));
-		try {
-			const response = await fetch(api, {
-				method: 'POST',
-				body: formData
-			});
-			const data: UserRes = await response.json();
-			dispatch(setName(data.name));
-			dispatch(setPhotoURL(data.photo));
-			dispatch(setScore(data.score));
-			dispatch(setSignUpModal(false));
-		} catch (err) {
-			alert(err);
-		}
+    const token = await handleVerifyCaptcha();
+    const api = `${API_URL}/guessai_canvas/simple_user/`;
+    const formData = new FormData();
+    formData.append("name", username);
+    if (photo) {
+      formData.append("photo", photo, photoName);
+    }
+    formData.append("token", String(token));
+    try {
+      const response = await fetch(api, {
+        method: "POST",
+        body: formData,
+      });
+      const data: UserRes = await response.json();
+      dispatch(setName(data.name));
+      dispatch(setPhotoURL(data.photo));
+      dispatch(setScore(data.score));
+      dispatch(setSignUpModal(false));
+    } catch (err) {
+      alert(err);
+    }
   }, [dispatch, handleVerifyCaptcha, photo, photoName, username]);
 
   return (
@@ -103,13 +114,25 @@ function SignUpModal() {
           <div className="modal-body">
             <form action="" onSubmit={(e) => e.preventDefault()}>
               <div className="photo-wrap d-flex justify-content-center align-items-center mx-auto">
-                { photoBase64 ? <img className="w-100 rounded-circle h-100" src={photoBase64} /> : <UserIcon className="icon" /> }
+                {photoBase64 ? (
+                  <img
+                    className="w-100 rounded-circle h-100"
+                    src={photoBase64}
+                  />
+                ) : (
+                  <UserIcon className="icon" />
+                )}
                 <div className="upload-btn d-flex justify-content-center align-items-center">
                   <label
                     htmlFor="userPhoto"
                     className="position-absolute w-100 h-100 top-0 left-0"
                   >
-                    <input type="file" name="userPhoto" id="userPhoto" onChange={handlePhotoChange} />
+                    <input
+                      type="file"
+                      name="userPhoto"
+                      id="userPhoto"
+                      onChange={handlePhotoChange}
+                    />
                   </label>
                   <UploadIcon className="icon position-relative" />
                 </div>
@@ -120,8 +143,8 @@ function SignUpModal() {
                   type="text"
                   placeholder="Name"
                   aria-label="Name"
-									value={username}
-									onChange={handleUsernameChange}
+                  value={username}
+                  onChange={handleUsernameChange}
                 />
               </div>
               <button

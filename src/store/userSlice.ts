@@ -1,8 +1,16 @@
 import { createSlice, createAsyncThunk, ActionReducerMapBuilder } from "@reduxjs/toolkit";
 import API_URL from "@/config";
+import { setSignUpModal } from "@/components/Modal/ModalSlice.ts";
 
-const fetchUser = createAsyncThunk(`${API_URL}/guessai_canvas/simple_user/`, async () => {
-	const response = await fetch(`${API_URL}/guessai_canvas/simple_user/`);
+const fetchUser = createAsyncThunk(`${API_URL}/guessai_canvas/simple_user/`, async (_, thunkAPI) => {
+	const response = await fetch(`${API_URL}/guessai_canvas/simple_user/`, {
+		method: "GET",
+		credentials: "include",
+	});
+	if (!response.ok) {
+		throw new Error("failed to fetch user");
+	}
+	thunkAPI.dispatch((setSignUpModal(false)));
 	return response.json();
 });
 
@@ -32,15 +40,13 @@ const userSlice = createSlice({
 	extraReducers: (builder: ActionReducerMapBuilder<{ name: string; photoURL: string; score: number; isLoggedIn: boolean; isLoading: boolean; error: string; }>) => {
 		builder
 			.addCase(fetchUser.pending, (state) => {
-				console.log("fetchUser1");
 				state.isLoading = true;
 			})
 			.addCase(fetchUser.fulfilled, (state, action) => {
-				console.log("fetchUser2");
 				state.isLoading = false;
 				state.isLoggedIn = true;
 				state.name = action.payload.name;
-				state.photoURL = action.payload.photoURL;
+				state.photoURL = `${API_URL}/guessai_canvas/user_photo/${action.payload.photo}/`
 				state.score = action.payload.score;
 			})
 			.addCase(fetchUser.rejected, (state, action) => {

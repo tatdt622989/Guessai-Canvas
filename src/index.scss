@@ -12,7 +12,7 @@ body {
     }
 }
 
-.copyright {
+.footer {
     font-size: 20px;
     font-weight: 500;
     @include media(575) {
@@ -26,6 +26,10 @@ body {
             color: #54656C;
         }
     }
+}
+
+.connect-status {
+    color: darken($tertiary, 15%);
 }
 
 .grecaptcha-badge { display: none !important; }
