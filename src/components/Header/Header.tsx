@@ -1,15 +1,15 @@
 import { useState } from "react";
 import type { RootState } from "@/store/store";
-import { useSelector, useDispatch } from "react-redux";
-import { setName, setPhotoURL, setScore } from "@/store/UserSlice.ts";
+import { useAppSelector, useAppDispatch } from "@/store/store";
+import { setName, setPhotoURL, setScore } from "@/store/UserSlice";
 import UserIcon from "@/assets/user.svg?react";
 import "./Header.scss";
 
 function Header() {
-  const nameStatus = useSelector(
+  const nameStatus = useAppSelector(
     (state: RootState) => state.user.name
   );
-  const photoURLStatus = useSelector(
+  const photoURLStatus = useAppSelector(
     (state: RootState) => state.user.photoURL
   );
 

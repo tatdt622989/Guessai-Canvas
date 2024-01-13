@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import type { RootState } from "@/store/store";
-import { useSelector, useDispatch } from "react-redux";
+import { useAppSelector, useAppDispatch } from "@/store/store";
 import { setName, setPhotoURL, setScore } from "@/store/UserSlice.ts";
 import { setSignUpModal } from "@/components/Modal/ModalSlice.ts";
 import API_URL from "@/config";
@@ -26,10 +26,11 @@ interface UserRes {
 }
 
 function SignUpModal() {
-  const dispatch = useDispatch();
-  const modalStatus = useSelector(
+  const dispatch = useAppDispatch();
+  const modalStatus = useAppSelector(
     (state: RootState) => state.modal.signUpModal
   );
+  const isLoading = useAppSelector((state: RootState) => state.user.isLoading);
   const [username, setUsername] = useState("");
   const [photo, setPhoto] = useState<Blob | null>(null);
   const [photoName, setPhotoName] = useState("");
@@ -76,6 +77,7 @@ function SignUpModal() {
   );
 
   const createUser = useCallback(async () => {
+    if (isLoading || !username) return;
     const token = await handleVerifyCaptcha();
     const api = `${API_URL}/guessai_canvas/simple_user/`;
     const formData = new FormData();
@@ -97,7 +99,7 @@ function SignUpModal() {
     } catch (err) {
       alert(err);
     }
-  }, [dispatch, handleVerifyCaptcha, photo, photoName, username]);
+  }, [dispatch, handleVerifyCaptcha, isLoading, photo, photoName, username]);
 
   return (
     <div

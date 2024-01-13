@@ -1,8 +1,18 @@
+import type { RootState } from "@/store/store";
+import { useAppSelector, useAppDispatch } from "@/store/store";
 import "./CorrectModal.scss";
 
 function CorrectModal() {
+  const modalStatus = useAppSelector(
+    (state: RootState) => state.modal.correctModal
+  );
+
   return (
-    <div className="modal" tabIndex={-1}>
+    <div 
+      className={`modal ${modalStatus ? "fade show" : ""}`}
+      tabIndex={-1}
+      style={{ display: `${modalStatus ? "block" : "none"}` }}
+    >
       <div className="modal-dialog">
         <div className="modal-content">
           <div className="modal-header">

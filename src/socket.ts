@@ -1,13 +1,16 @@
 import { io, Socket } from 'socket.io-client';
+import type { Message } from '@/types';
 
 interface ServerToClientEvents {
   noArg: () => void;
   basicEmit: (a: number, b: string, c: Buffer) => void;
   withAck: (d: string, callback: (e: number) => void) => void;
+  'server message': (msg: Message) => void;
 }
 
 interface ClientToServerEvents {
   hello: () => void;
+  'client message': (msg: string) => void;
 }
 
 // interface InterServerEvents {
