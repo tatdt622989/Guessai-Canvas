@@ -12,3 +12,9 @@ export interface SimpleUser
     message: string;
     isCorrect: boolean;
  }
+
+ export interface GuessAICanvas
+ {
+    canvas: string;
+    solved: boolean;
+ }

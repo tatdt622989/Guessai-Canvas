@@ -1,11 +1,16 @@
 import { io, Socket } from 'socket.io-client';
-import type { Message } from '@/types';
+import type { Message, GuessAICanvas } from '@/types';
+
+interface CanvasRes {
+  status: string;
+}
 
 interface ServerToClientEvents {
   noArg: () => void;
   basicEmit: (a: number, b: string, c: Buffer) => void;
   withAck: (d: string, callback: (e: number) => void) => void;
   'server message': (msg: Message) => void;
+  'server canvas': (data: CanvasRes) => void;
 }
 
 interface ClientToServerEvents {

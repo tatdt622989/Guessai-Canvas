@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useAppSelector, useAppDispatch } from "@/store/store";
 import "./Score.scss";
 
 interface Props {
@@ -6,12 +7,14 @@ interface Props {
 }
 
 function Score(props: Props) {
+  const score = useAppSelector((state) => state.user.score);
+
   return (
     <div className={`score ${props.position ? props.position : ''}`}>
       <div className="score-container">
         <div className="score-content">
           <div className="score-title">Your Score</div>
-          <div className="score-value">9999</div>
+          <div className="score-value">{score}</div>
         </div>
       </div>
     </div>

@@ -62,6 +62,8 @@ function App() {
       setIsConnected(false);
     }
     function onMsgReceive(msg: Message) {
+      console.log(msg);
+      if (!msg) return;
       setMsgList((prev) => [...prev, msg]);
     }
     socket.on("connect", onConnect);
