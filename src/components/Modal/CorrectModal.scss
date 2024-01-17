@@ -1,0 +1,95 @@
+@import "@/variables";
+@import "@/mixins";
+
+#correctModal {
+  background: rgba(34, 51, 59, 0.79);
+  .modal-title {
+    color: #22333b;
+    font-size: 36px;
+    font-style: normal;
+    font-weight: 800;
+    line-height: normal;
+    letter-spacing: 0.36px;
+  }
+  .modal-header {
+    padding-bottom: 0;
+    padding-top: 16px;
+    border: 0;
+    .btn-close {
+        top: 0;
+        right: 0;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        color: $secondary;
+        font-size: 24px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+        letter-spacing: 0.48px;
+        overflow: hidden;
+        &:focus {
+            box-shadow: none;
+        }
+        label {
+            cursor: pointer;
+            background: #485f6a;
+            transition: background 0.3s ease-in-out;
+            &:hover {
+            background: $secondary;
+            }
+        }
+    }
+  }
+  .modal-content {
+    border-radius: 20px;
+    background: $primary;
+}
+.modal-body {
+      padding-top: 24px;
+    .winner-name {
+        color: $secondary;
+        font-size: 24px;
+        font-weight: 500;
+        letter-spacing: 0.2px;
+        span {
+            font-weight: bold;
+        }
+    }
+    .photo-wrap {
+        width: 80px;
+        height: 80px;
+        background: $tertiary;
+        svg {
+            width: 60px;
+            height: 60px;
+            path {
+                fill: $secondary;
+            }
+        }
+    }
+    .point {
+        font-size: 20px;
+        font-weight: 500;
+        color: $secondary;
+        margin-bottom: 30px;
+        letter-spacing: 0.2px;
+
+    }
+    .answer {
+        background: $secondary;
+        font-size: 20px;
+        font-weight: 500;
+        color: $primary;
+        font-weight: bold;
+        margin-bottom: 10px;
+        line-height: 1.5;
+        letter-spacing: 0.3px;
+        border-radius: 10px;
+        padding: 10px 20px;
+        span {
+            color: $tertiary;
+        }
+    }
+  }
+}

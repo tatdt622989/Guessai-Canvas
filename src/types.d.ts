@@ -11,6 +11,7 @@ export interface SimpleUser
     user: SimpleUser;
     message: string;
     isCorrect: boolean;
+    status: string;
  }
 
  export interface GuessAICanvas

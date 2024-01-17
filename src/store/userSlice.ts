@@ -64,7 +64,7 @@ const userSlice = createSlice({
         state.isLoading = false;
         state.isLoggedIn = true;
         state.name = action.payload.name;
-        state.photoURL = `${API_URL}/guessai_canvas/user_photo/${action.payload.photo}/`;
+        state.photoURL = action.payload.photo ? `${API_URL}/guessai_canvas/user_photo/${action.payload.photo}/` : "";
         state.score = action.payload.score;
       })
       .addCase(fetchUser.rejected, (state, action) => {

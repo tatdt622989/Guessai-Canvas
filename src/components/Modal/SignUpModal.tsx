@@ -3,20 +3,21 @@ import type { RootState } from "@/store/store";
 import { useAppSelector, useAppDispatch } from "@/store/store";
 import { setName, setPhotoURL, setScore } from "@/store/UserSlice.ts";
 import { setSignUpModal } from "@/components/Modal/ModalSlice.ts";
+import { addToast, removeToast } from "@/components/Toast/ToastSlice.ts";
 import API_URL from "@/config";
 import UserIcon from "@/assets/user.svg?react";
 import UploadIcon from "@/assets/upload.svg?react";
 import "./SignUpModal.scss";
 
-interface ReCaptchaV2 {
-  ready: (callback: () => void) => void;
-  execute: (siteKey: string, options: { action: string }) => Promise<string>;
-}
-
 declare global {
   interface Window {
     grecaptcha: ReCaptchaV2;
   }
+}
+
+interface ReCaptchaV2 {
+  ready: (callback: () => void) => void;
+  execute: (siteKey: string, options: { action: string }) => Promise<string>;
 }
 
 interface UserRes {
@@ -97,7 +98,15 @@ function SignUpModal() {
       dispatch(setScore(data.score));
       dispatch(setSignUpModal(false));
     } catch (err) {
-      alert(err);
+      const toastId = Date.now();
+      dispatch(addToast({
+        id: toastId,
+        type: "error",
+        description: "Sign up failed",
+      }));
+      setTimeout(() => {
+        dispatch(removeToast(toastId));
+      }, 6000);
     }
   }, [dispatch, handleVerifyCaptcha, isLoading, photo, photoName, username]);
 

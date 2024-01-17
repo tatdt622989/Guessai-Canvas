@@ -1,8 +1,17 @@
 import { io, Socket } from 'socket.io-client';
-import type { Message, GuessAICanvas } from '@/types';
+import type { Message, SimpleUser } from '@/types';
 
 interface CanvasRes {
   status: string;
+  prevAnswer: {
+    answerTW: string;
+    answerEN: string;
+    answerJP: string;
+  };
+  correctRespondent: {
+    name: string;
+    photo: string;
+  }
 }
 
 interface ServerToClientEvents {
@@ -11,6 +20,7 @@ interface ServerToClientEvents {
   withAck: (d: string, callback: (e: number) => void) => void;
   'server message': (msg: Message) => void;
   'server canvas': (data: CanvasRes) => void;
+  'server ranking': (data: SimpleUser[]) => void;
 }
 
 interface ClientToServerEvents {

@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useAppDispatch } from '@/store/store.ts';
 import { fetchUser } from "@/store/UserSlice.ts";
-import API_URL from "@/config";
+import { addToast, removeToast } from "./components/Toast/ToastSlice.ts";
 import { socket } from "./socket";
 import "./App.css";
+import API_URL from "@/config";
 import Header from "./components/Header/Header.tsx";
 import Canvas from "./components/Canvas/Canvas.tsx";
 import Messages from "./components/Messages/Messages.tsx";
@@ -11,6 +12,7 @@ import Ranking from "./components/Ranking/Ranking.tsx";
 import Score from "./components/Score/Score.tsx";
 import SignUpModal from "./components/Modal/SignUpModal.tsx";
 import CorrectModal from "./components/Modal/CorrectModal.tsx";
+import Toast from "./components/Toast/Toast.tsx";
 import type { Message } from '@/types';
 
 function App() {
@@ -64,6 +66,18 @@ function App() {
     function onMsgReceive(msg: Message) {
       console.log(msg);
       if (!msg) return;
+      if (msg.status === "error") {
+        const toastID = Date.now();
+        dispatch(addToast({
+          id: toastID,
+          type: "error",
+          description: msg.message,
+        }));
+        setTimeout(() => {
+          dispatch(removeToast(toastID));
+        }, 6000);
+        return;
+      }
       setMsgList((prev) => [...prev, msg]);
     }
     socket.on("connect", onConnect);
@@ -114,6 +128,7 @@ function App() {
       </div>
       <SignUpModal />
       <CorrectModal />
+      <Toast />
     </div>
   );
 }
