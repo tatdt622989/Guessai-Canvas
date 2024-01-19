@@ -1,9 +1,10 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import type { RootState } from "@/store/store";
 import { useAppSelector, useAppDispatch } from "@/store/store";
 import { setName, setPhotoURL, setScore } from "@/store/UserSlice.ts";
 import { setSignUpModal } from "@/components/Modal/ModalSlice.ts";
 import { addToast, removeToast } from "@/components/Toast/ToastSlice.ts";
+import { socket } from "@/socket";
 import API_URL from "@/config";
 import UserIcon from "@/assets/user.svg?react";
 import UploadIcon from "@/assets/upload.svg?react";
@@ -97,6 +98,9 @@ function SignUpModal() {
       dispatch(setPhotoURL(data.photo));
       dispatch(setScore(data.score));
       dispatch(setSignUpModal(false));
+      // socket.io reconnection
+      socket.disconnect(); // 斷開連接
+      socket.connect();    // 重新連接
     } catch (err) {
       const toastId = Date.now();
       dispatch(addToast({

@@ -42,6 +42,10 @@
         overflow: hidden;
         margin-right: 10px;
         flex-shrink: 0;
+        background-color: $primary;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         @include media(575) {
           width: 30px;
           height: 30px;
@@ -51,6 +55,17 @@
           width: 100%;
           height: 100%;
           object-fit: cover;
+        }
+        svg {
+          width: 32px;
+          height: 32px;
+          @include media(575) {
+            width: 24px;
+            height: 24px;
+          }
+          path {
+            fill: $secondary;
+          }
         }
       }
       .text {

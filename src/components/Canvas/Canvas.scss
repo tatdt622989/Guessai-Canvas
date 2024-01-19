@@ -8,11 +8,18 @@
     border-radius: 20px;
     padding: 20px;
     margin-bottom: 20px;
+    @include media(991) {
+        aspect-ratio: initial;
+        height: 400px;
+        align-items: stretch;
+    }
     @include media(768) {
-        min-height: 200px;
+        min-height: 0;
+        height: 300px;
     }
     @include media(575) {
         padding: 16px;
+        height: 220px;
         margin-bottom: 16px;
     }
     .canvas-container {
@@ -29,11 +36,14 @@
 
         iframe {
             position: absolute;
-            top: 0;
-            left: 0;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             width: 100%;
             height: 100%;
             z-index: 2;
+            display: flex;
+            object-fit: cover;
         }
         
         .default {

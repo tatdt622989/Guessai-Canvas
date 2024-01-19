@@ -1,7 +1,5 @@
-import { useState } from "react";
 import type { RootState } from "@/store/store";
-import { useAppSelector, useAppDispatch } from "@/store/store";
-import { setName, setPhotoURL, setScore } from "@/store/UserSlice";
+import { useAppSelector } from "@/store/store";
 import UserIcon from "@/assets/user.svg?react";
 import "./Header.scss";
 

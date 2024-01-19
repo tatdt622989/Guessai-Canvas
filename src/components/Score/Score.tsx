@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useAppSelector, useAppDispatch } from "@/store/store";
+import { useAppSelector } from "@/store/store";
 import "./Score.scss";
 
 interface Props {

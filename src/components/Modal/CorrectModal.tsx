@@ -69,7 +69,7 @@ function CorrectModal() {
           <div className="modal-body">
             <div className="photo-wrap rounded-circle mx-auto d-flex align-items-center justify-content-center mb-2">
               {
-                canvasData && canvasData.correctRespondent ?  
+                canvasData && canvasData.correctRespondent && canvasData.correctRespondent.photo ?
                   <img className="w-100 rounded-circle h-100" src={`${API_URL}/guessai_canvas/user_photo/${canvasData.correctRespondent.photo}/`}/> : 
                   <UserIcon className="icon" />
               }

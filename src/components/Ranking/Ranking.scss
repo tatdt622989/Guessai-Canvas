@@ -6,7 +6,7 @@
   background: $tertiary;
   flex-grow: 1;
   min-height: 0;
-  @include media(992) {
+  @include media(991) {
     margin-top: 20px;
   }
   @include media(575) {

@@ -5,7 +5,6 @@ import {
 } from "@reduxjs/toolkit";
 import API_URL from "@/config";
 import { setSignUpModal } from "@/components/Modal/ModalSlice.ts";
-import type { RootState } from "@/store/store.ts";
 import type { SimpleUser } from "@/types";
 
 const fetchUser = createAsyncThunk(
@@ -66,6 +65,7 @@ const userSlice = createSlice({
         state.name = action.payload.name;
         state.photoURL = action.payload.photo ? `${API_URL}/guessai_canvas/user_photo/${action.payload.photo}/` : "";
         state.score = action.payload.score;
+        console.log(state.photoURL);
       })
       .addCase(fetchUser.rejected, (state, action) => {
         state.isLoading = false;

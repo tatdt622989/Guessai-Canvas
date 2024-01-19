@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAppDispatch } from '@/store/store.ts';
 import { fetchUser } from "@/store/UserSlice.ts";
 import { addToast, removeToast } from "./components/Toast/ToastSlice.ts";
@@ -64,7 +64,6 @@ function App() {
       setIsConnected(false);
     }
     function onMsgReceive(msg: Message) {
-      console.log(msg);
       if (!msg) return;
       if (msg.status === "error") {
         const toastID = Date.now();
@@ -79,6 +78,10 @@ function App() {
         return;
       }
       setMsgList((prev) => [...prev, msg]);
+      // update user score
+      if (msg.isCorrect) {
+        dispatch(fetchUser());
+      }
     }
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
@@ -96,7 +99,7 @@ function App() {
       socket.off("disconnect", onDisconnect);
       socket.off("server message", onMsgReceive);
     };
-  }, []);
+  }, [dispatch]);
 
   return (
     <div className="app container">

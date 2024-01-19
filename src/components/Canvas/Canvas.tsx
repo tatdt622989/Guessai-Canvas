@@ -1,6 +1,5 @@
 import { useState, forwardRef, useEffect, useRef } from "react";
 import { socket } from "@/socket";
-import type { GuessAICanvas } from '@/types';
 import API_URL from "@/config";
 import "./Canvas.scss";
 
@@ -12,7 +11,7 @@ interface CanvasRes {
   status: string;
 }
 
-const Canvas = forwardRef<HTMLDivElement, Props>((props, ref) => {
+const Canvas = forwardRef<HTMLDivElement, Props>((_props, ref) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [status, setStatus] = useState<string>('done');
 

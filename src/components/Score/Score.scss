@@ -8,7 +8,7 @@
   width: 100%;
   padding: 15px 20px;
   margin-bottom: 20px;
-  @include media(992) {
+  @include media(991) {
     display: none;
   }
   @include media(575) {
@@ -18,7 +18,7 @@
   }
   &.mobile {
     display: block;
-    @include media(-992) {
+    @include media(-991) {
       display: none;
     }
   }

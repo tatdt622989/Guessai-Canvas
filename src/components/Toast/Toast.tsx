@@ -1,4 +1,3 @@
-import { useEffect, useMemo, useState } from "react";
 import type { RootState } from "@/store/store";
 import { useAppSelector, useAppDispatch } from "@/store/store";
 import { removeToast } from "@/components/Toast/ToastSlice.ts";
@@ -20,7 +19,6 @@ function ToastList() {
   return (
     <>
       {toastListStatus.map((toast) => (
-        console.log(toast),
         <div
           key={toast.id}
           className={`toast align-items-center text-white bg-${typeMap[toast.type]} border-0 show`}
