@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 import type { Message, SimpleUser } from '@/types';
-// import API_URL from "@/config";
+// import { API_URL } from "@/config";
 
 interface CanvasRes {
   status: string;
@@ -38,8 +38,7 @@ interface ClientToServerEvents {
 //   age: number;
 // }
 
-const URL = process.env.NODE_ENV === 'production' ? 'https://api.6yuwei.com' : 'http://localhost:5173/api';
-console.log(URL);
+// const URL = process.env.NODE_ENV === 'production' ? 'https://api.6yuwei.com' : 'http://localhost:5173/api';
 
 export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io({
     path: process.env.NODE_ENV === 'production' ? '/guessai_canvas/api/guessai_canvas/socket.io/' :'/api/guessai_canvas/socket.io/',

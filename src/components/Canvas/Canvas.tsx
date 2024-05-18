@@ -1,6 +1,6 @@
 import { useState, forwardRef, useEffect, useRef } from "react";
 import { socket } from "@/socket";
-import API_URL from "@/config";
+import { API_URL } from "@/config";
 import "./Canvas.scss";
 
 interface Props {
@@ -13,7 +13,7 @@ interface CanvasRes {
 
 const Canvas = forwardRef<HTMLDivElement, Props>((_props, ref) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [status, setStatus] = useState<string>('done');
+  const [status, setStatus] = useState<string>('');
 
   useEffect(() => {
     function onCanvasReceive(data: CanvasRes) {
@@ -29,7 +29,7 @@ const Canvas = forwardRef<HTMLDivElement, Props>((_props, ref) => {
   }, []);
 
   useEffect(() => {
-    if (status === 'done') return;
+    if (!status) return;
     const iframeElement = iframeRef.current;
     if (!iframeElement) return;
     const iframeWindow = iframeElement.contentWindow;
@@ -40,9 +40,7 @@ const Canvas = forwardRef<HTMLDivElement, Props>((_props, ref) => {
   return (
     <div className="canvas w-100" ref={ref}>
       <div className="canvas-container">
-        {
-          status === 'done' ? <iframe src={`${API_URL}/guessai_canvas/canvas/`} ref={iframeRef}></iframe> : ''
-        }
+        <iframe src={`${API_URL}/guessai_canvas/canvas/`} ref={iframeRef}></iframe>
         <div className="default">
           <div className="bg"></div>
           <p className="text mb-0">

@@ -5,7 +5,7 @@ import { setName, setPhotoURL, setScore } from "@/store/UserSlice.ts";
 import { setSignUpModal } from "@/components/Modal/ModalSlice.ts";
 import { addToast, removeToast } from "@/components/Toast/ToastSlice.ts";
 import { socket } from "@/socket";
-import API_URL from "@/config";
+import { API_URL } from "@/config";
 import UserIcon from "@/assets/user.svg?react";
 import UploadIcon from "@/assets/upload.svg?react";
 import "./SignUpModal.scss";
@@ -95,7 +95,9 @@ function SignUpModal() {
       });
       const data: UserRes = await response.json();
       dispatch(setName(data.name));
-      dispatch(setPhotoURL(data.photo));
+      if (data.photo) {
+        dispatch(setPhotoURL(photoBase64));
+      }
       dispatch(setScore(data.score));
       dispatch(setSignUpModal(false));
       // socket.io reconnection
@@ -112,7 +114,7 @@ function SignUpModal() {
         dispatch(removeToast(toastId));
       }, 6000);
     }
-  }, [dispatch, handleVerifyCaptcha, isLoading, photo, photoName, username]);
+  }, [dispatch, handleVerifyCaptcha, isLoading, photo, photoBase64, photoName, username]);
 
   return (
     <div

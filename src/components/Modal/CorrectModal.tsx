@@ -3,7 +3,7 @@ import type { RootState } from "@/store/store";
 import { useAppSelector, useAppDispatch } from "@/store/store";
 import { setCorrectModal } from "@/components/Modal/ModalSlice.ts";
 import { socket } from "@/socket";
-import API_URL from "@/config";
+import { API_URL } from "@/config";
 import UserIcon from "@/assets/user.svg?react";
 import "./CorrectModal.scss";
 
