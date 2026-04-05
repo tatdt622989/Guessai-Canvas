@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit'
 import modalReducer from '@/components/Modal/ModalSlice'
-import userReducer from '@/store/UserSlice.ts'
+import userReducer from '@/store/userSlice.ts'
 import toastReducer from '@/components/Toast/ToastSlice.ts'
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 

@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import type { RootState } from "@/store/store";
 import { useAppSelector, useAppDispatch } from "@/store/store";
-import { setName, setPhotoURL, setScore } from "@/store/UserSlice.ts";
+import { setName, setPhotoURL, setScore } from "@/store/userSlice.ts";
 import { setSignUpModal } from "@/components/Modal/ModalSlice.ts";
 import { addToast, removeToast } from "@/components/Toast/ToastSlice.ts";
 import { socket } from "@/socket";

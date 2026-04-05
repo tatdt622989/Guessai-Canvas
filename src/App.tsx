@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useAppDispatch } from '@/store/store.ts';
-import { fetchUser } from "@/store/UserSlice.ts";
+import { fetchUser } from "@/store/userSlice.ts";
 import { addToast, removeToast } from "./components/Toast/ToastSlice.ts";
 import { socket } from "./socket";
 import "./App.css";
