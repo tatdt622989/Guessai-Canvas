@@ -13,12 +13,13 @@ import SignUpModal from "./components/Modal/SignUpModal.tsx";
 import CorrectModal from "./components/Modal/CorrectModal.tsx";
 import Toast from "./components/Toast/Toast.tsx";
 import type { Message } from '@/types';
+import { getMessageKey } from "@/utils/message";
 
 function mergeMessages(currentMessages: Message[], incomingMessages: Message[]) {
   const messageMap = new Map<string, Message>();
 
   [...currentMessages, ...incomingMessages].forEach((message) => {
-    messageMap.set(message._id, message);
+    messageMap.set(getMessageKey(message), message);
   });
 
   return Array.from(messageMap.values()).sort((a, b) => {

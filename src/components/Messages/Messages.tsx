@@ -3,6 +3,7 @@ import { API_URL } from "@/config";
 import UserIcon from "@/assets/user.svg?react";
 import "./Messages.scss";
 import type { Message } from "@/types";
+import { getMessageKey } from "@/utils/message";
 
 interface Props {
   msgList: Message[];
@@ -23,7 +24,7 @@ function MessagesList(props: ListProps) {
     const isSameUserMessage = prevMsgUser === msg.user.name && msgMinute === prevMsgMinute;
 
     const item = <div className={`messages-item d-flex align-items-start ${isSameUserMessage ? 'same-user' : ''}`} 
-      key={index}>
+      key={`${getMessageKey(msg)}-${index}`}>
       { !isSameUserMessage &&
       <div className="photo me-3">
         {
