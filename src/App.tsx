@@ -18,6 +18,7 @@ function App() {
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [canvasHeight, setCanvasHeight] = useState(0);
   const [msgList, setMsgList] = useState<Message[]>([]);
+  const [isCanvasLoading, setIsCanvasLoading] = useState(false);
   const canvasWrapRef = useRef<HTMLDivElement>(null);
   const dispatch = useAppDispatch();
 
@@ -95,9 +96,18 @@ function App() {
         dispatch(fetchUser());
       }
     }
+    function onCanvasReceive(data: { status: string }) {
+      if (!data) return;
+      if (data.status === 'loading') {
+        setIsCanvasLoading(true);
+      } else if (data.status === 'done') {
+        setIsCanvasLoading(false);
+      }
+    }
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on("server message", onMsgReceive);
+    socket.on("server canvas", onCanvasReceive);
 
     // error handling
     socket.on("connect_error", (err) => {
@@ -110,6 +120,7 @@ function App() {
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
       socket.off("server message", onMsgReceive);
+      socket.off("server canvas", onCanvasReceive);
     };
   }, [dispatch]);
 
@@ -124,6 +135,7 @@ function App() {
               canvasHeight={canvasHeight}
               msgList={msgList}
               handleSandMsg={handleSandMsg}
+              isCanvasLoading={isCanvasLoading}
               ref={canvasWrapRef}
             />
             } />
@@ -133,6 +145,7 @@ function App() {
                 canvasHeight={canvasHeight}
                 msgList={msgList}
                 handleSandMsg={handleSandMsg}
+                isCanvasLoading={isCanvasLoading}
                 ref={canvasWrapRef}
               />
             } />

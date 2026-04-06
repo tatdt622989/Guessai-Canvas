@@ -9,6 +9,7 @@ interface Props {
   canvasHeight: number;
   msgList: Message[];
   handleSandMsg: (msg: string) => void;
+  isCanvasLoading: boolean;
 }
 
 const Home = forwardRef<HTMLDivElement, Props>((_props, ref) => {
@@ -17,7 +18,7 @@ const Home = forwardRef<HTMLDivElement, Props>((_props, ref) => {
       <div className="col-12 col-lg-8">
         <Score position={"mobile"} />
         <Canvas ref={ref} />
-        <Messages msgList={_props.msgList} handleSandMsg={_props.handleSandMsg} />
+        <Messages msgList={_props.msgList} handleSandMsg={_props.handleSandMsg} isCanvasLoading={_props.isCanvasLoading} />
       </div>
       <div className="col-12 col-lg-4 d-flex flex-column">
         <Score />

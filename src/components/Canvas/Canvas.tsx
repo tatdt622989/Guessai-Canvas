@@ -17,7 +17,7 @@ const Canvas = forwardRef<HTMLDivElement, Props>((_props, ref) => {
   useEffect(() => {
     function onCanvasReceive(data: CanvasRes) {
       if (!data) return;
-      if (data.status === "done") {
+      if (data.status === "loading" || data.status === "done") {
         setCanvasVersion((prev) => prev + 1);
       }
     }
