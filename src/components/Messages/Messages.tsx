@@ -72,6 +72,12 @@ function Messages(props: Props) {
     }
   }, [props.msgList]);
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    handleSendMsg();
+  };
+
   return (
     <div className="messages">
       <div className="messages-container w-100">
@@ -87,13 +93,9 @@ function Messages(props: Props) {
             placeholder="Please guess what the AI drew..."
             value={msgValue}
             onChange={(e) => setMsgValue(e.target.value)}
-            onKeyUp={(e) => {
-              if (e.key === "Enter") {
-                handleSendMsg();
-              }
-            }}
+            onKeyDown={handleKeyDown}
           />
-          <button className="send-btn btn btn-primary" onClick={handleSendMsg}>Send</button>
+          <button type="button" className="send-btn btn btn-primary" onClick={handleSendMsg}>Send</button>
         </div>
       </div>
     </div>
