@@ -91,6 +91,7 @@ function SignUpModal() {
     try {
       const response = await fetch(api, {
         method: "POST",
+        credentials: "include",
         body: formData,
       });
       const data: UserRes = await response.json();
