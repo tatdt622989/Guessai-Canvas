@@ -7,6 +7,7 @@ import type { Message } from "@/types";
 interface Props {
   msgList: Message[];
   handleSandMsg: (msg: string) => void;
+  isCanvasLoading: boolean;
 }
 
 interface ListProps {
@@ -62,6 +63,7 @@ function Messages(props: Props) {
   const [msgValue, setMsgValue] = useState<string>('');
 
   const handleSendMsg = (value = msgValue) => {
+    if (props.isCanvasLoading) return;
     if (!value) return;
     props.handleSandMsg(value);
     setMsgValue('');
@@ -97,8 +99,9 @@ function Messages(props: Props) {
             ref={inputRef}
             type="text"
             className="form-control"
-            placeholder="Please guess what the AI drew..."
+            placeholder={props.isCanvasLoading ? "Waiting for the next canvas..." : "Please guess what the AI drew..."}
             value={msgValue}
+            disabled={props.isCanvasLoading}
             onChange={(e) => setMsgValue(e.target.value)}
             onCompositionStart={() => {
               isComposingRef.current = true;
@@ -108,7 +111,7 @@ function Messages(props: Props) {
             }}
             onKeyDown={handleKeyDown}
           />
-          <button type="button" className="send-btn btn btn-primary" onClick={() => handleSendMsg()}>Send</button>
+          <button type="button" className="send-btn btn btn-primary" disabled={props.isCanvasLoading} onClick={() => handleSendMsg()}>Send</button>
         </div>
       </div>
     </div>
