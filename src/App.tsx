@@ -14,6 +14,18 @@ import CorrectModal from "./components/Modal/CorrectModal.tsx";
 import Toast from "./components/Toast/Toast.tsx";
 import type { Message } from '@/types';
 
+function mergeMessages(currentMessages: Message[], incomingMessages: Message[]) {
+  const messageMap = new Map<string, Message>();
+
+  [...currentMessages, ...incomingMessages].forEach((message) => {
+    messageMap.set(message._id, message);
+  });
+
+  return Array.from(messageMap.values()).sort((a, b) => {
+    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+  });
+}
+
 function App() {
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [canvasHeight, setCanvasHeight] = useState(0);
@@ -26,7 +38,7 @@ function App() {
     fetch(`${API_URL}/guessai_canvas/msg_list/`)
       .then((res) => res.json())
       .then((data) => {
-        setMsgList(data);
+        setMsgList((prev) => mergeMessages(prev, data));
       });
   };
 
@@ -68,10 +80,9 @@ function App() {
   }, [canvasWrapRef]);
 
   useEffect(() => {
-    getMsgList();
-  
     function onConnect() {
       setIsConnected(true);
+      getMsgList();
     }
     function onDisconnect() {
       setIsConnected(false);
@@ -90,7 +101,7 @@ function App() {
         }, 6000);
         return;
       }
-      setMsgList((prev) => [...prev, msg]);
+      setMsgList((prev) => mergeMessages(prev, [msg]));
       // update user score
       if (msg.isCorrect) {
         dispatch(fetchUser());

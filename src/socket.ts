@@ -42,6 +42,7 @@ const socketOptions = {
   path: SOCKET_PATH,
   forceNew: true,
   withCredentials: true,
+  autoConnect: false,
 };
 
 export const socket: Socket<ServerToClientEvents, ClientToServerEvents> =

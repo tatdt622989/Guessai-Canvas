@@ -16,12 +16,15 @@ interface ListProps {
 
 function MessagesList(props: ListProps) {
   let prevMsgUser = '';
-  let prevMsgMinute = 0;
+  let prevMsgMinute = -1;
 
   const list = props.msgList.map((msg: Message, index: number) => {
-    const item = <div className={`messages-item d-flex align-items-start ${prevMsgUser === msg.user.name && new Date(msg.createdAt).getMinutes() === prevMsgMinute ? 'same-user' : ''}`} 
+    const msgMinute = Math.floor(new Date(msg.createdAt).getTime() / 60000);
+    const isSameUserMessage = prevMsgUser === msg.user.name && msgMinute === prevMsgMinute;
+
+    const item = <div className={`messages-item d-flex align-items-start ${isSameUserMessage ? 'same-user' : ''}`} 
       key={index}>
-      { (prevMsgUser !== msg.user.name || (prevMsgUser === msg.user.name && new Date(msg.createdAt).getMinutes() !== prevMsgMinute)) &&
+      { !isSameUserMessage &&
       <div className="photo me-3">
         {
           msg.user.photo ? (
@@ -45,7 +48,7 @@ function MessagesList(props: ListProps) {
     </div>;
 
     prevMsgUser = msg.user.name;
-    prevMsgMinute = new Date(msg.createdAt).getMinutes();
+    prevMsgMinute = msgMinute;
 
     return item;
   })
@@ -63,9 +66,10 @@ function Messages(props: Props) {
   const [msgValue, setMsgValue] = useState<string>('');
 
   const handleSendMsg = (value = msgValue) => {
+    const trimmedValue = value.trim();
     if (props.isCanvasLoading) return;
-    if (!value) return;
-    props.handleSandMsg(value);
+    if (!trimmedValue) return;
+    props.handleSandMsg(trimmedValue);
     setMsgValue('');
     if (inputRef.current) {
       inputRef.current.value = "";
