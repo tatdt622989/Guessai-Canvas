@@ -5,6 +5,7 @@ import { setCorrectModal } from "@/components/Modal/ModalSlice.ts";
 import { socket } from "@/socket";
 import { API_URL } from "@/config";
 import UserIcon from "@/assets/user.svg?react";
+import type { SimpleUser } from "@/types";
 import "./CorrectModal.scss";
 
 interface CanvasRes {
@@ -14,10 +15,7 @@ interface CanvasRes {
     answerEN: string;
     answerJP: string;
   };
-  correctRespondent: {
-    name: string;
-    photo: string;
-  }
+  correctRespondent: SimpleUser | null;
 }
 
 function CorrectModal() {
@@ -38,13 +36,16 @@ function CorrectModal() {
     return () => {
       socket.off("server canvas", onCanvasReceive);
     };
-  }, []);
+  }, [dispatch]);
 
   const joinAnswer = useMemo(() => {
     if (!canvasData) return "";
     if (!canvasData.prevAnswer) return "";
     return [canvasData.prevAnswer.answerTW, canvasData.prevAnswer.answerEN, canvasData.prevAnswer.answerJP].join(", ");
   }, [canvasData]);
+
+  const winnerName = canvasData?.correctRespondent?.name?.trim() ?? "";
+  const hasWinner = Boolean(winnerName);
 
   return (
     <div 
@@ -57,7 +58,7 @@ function CorrectModal() {
       <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
         <div className="modal-content">
           <div className="modal-header">
-            <p className="modal-title">Solved!</p>
+            <p className="modal-title">{hasWinner ? "Solved!" : "Round Over"}</p>
             <button
               type="button"
               className="btn-close"
@@ -69,13 +70,15 @@ function CorrectModal() {
           <div className="modal-body">
             <div className="photo-wrap rounded-circle mx-auto d-flex align-items-center justify-content-center mb-2">
               {
-                canvasData && canvasData.correctRespondent && canvasData.correctRespondent.photo ?
+                hasWinner && canvasData?.correctRespondent?.photo ?
                   <img className="w-100 rounded-circle h-100" src={`${API_URL}/guessai_canvas/user_photo/${canvasData.correctRespondent.photo}/`}/> : 
                   <UserIcon className="icon" />
               }
             </div>
-            <div className="winner-name text-center"><span>{canvasData && canvasData.correctRespondent ? canvasData.correctRespondent.name : ''}</span> got it right!</div>
-            <p className="point text-center">Scored 100 points</p>
+            <div className="winner-name text-center">
+              {hasWinner ? <><span>{winnerName}</span> got it right!</> : "No one got it right."}
+            </div>
+            {hasWinner && <p className="point text-center">Scored 100 points</p>}
             <p className="answer text-center">
               The answer is <span>{joinAnswer}</span>
             </p>

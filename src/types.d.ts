@@ -20,5 +20,5 @@ export interface GuessAICanvas {
   answerEN: string;
   answerTW: string;
   answerJP: string;
-  correctRespondent: SimpleUser;
+  correctRespondent: SimpleUser | null;
 }

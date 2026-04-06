@@ -9,10 +9,7 @@ interface CanvasRes {
     answerEN: string;
     answerJP: string;
   };
-  correctRespondent: {
-    name: string;
-    photo: string;
-  }
+  correctRespondent: SimpleUser | null;
 }
 
 interface ServerToClientEvents {
