@@ -57,12 +57,17 @@ function MessagesList(props: ListProps) {
 
 function Messages(props: Props) {
   const messagesContentRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const isComposingRef = useRef(false);
   const [msgValue, setMsgValue] = useState<string>('');
 
-  const handleSendMsg = () => {
-    if (!msgValue) return;
-    props.handleSandMsg(msgValue);
+  const handleSendMsg = (value = msgValue) => {
+    if (!value) return;
+    props.handleSandMsg(value);
     setMsgValue('');
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
   }
 
   useEffect(() => {
@@ -74,8 +79,9 @@ function Messages(props: Props) {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== "Enter") return;
+    if (e.nativeEvent.isComposing || isComposingRef.current) return;
     e.preventDefault();
-    handleSendMsg();
+    handleSendMsg(e.currentTarget.value);
   };
 
   return (
@@ -88,14 +94,21 @@ function Messages(props: Props) {
         </div>
         <div className="messages-input w-100">
           <input
+            ref={inputRef}
             type="text"
             className="form-control"
             placeholder="Please guess what the AI drew..."
             value={msgValue}
             onChange={(e) => setMsgValue(e.target.value)}
+            onCompositionStart={() => {
+              isComposingRef.current = true;
+            }}
+            onCompositionEnd={() => {
+              isComposingRef.current = false;
+            }}
             onKeyDown={handleKeyDown}
           />
-          <button type="button" className="send-btn btn btn-primary" onClick={handleSendMsg}>Send</button>
+          <button type="button" className="send-btn btn btn-primary" onClick={() => handleSendMsg()}>Send</button>
         </div>
       </div>
     </div>
