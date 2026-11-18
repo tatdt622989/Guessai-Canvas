@@ -94,7 +94,7 @@ Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; 
 
 GET https://api.6yuwei.com/guessai_canvas/handoff（反向代理轉給本服務）
   ├ 讀 cookie guessai_canvas_access_token，用 GUESSAI_GUEST_SECRET 驗證，找到玩家
-  │   ├ 成功：產生一次性代碼存進 handoff_codes（60 秒），清除 api.6yuwei.com 上的舊 cookie，
+  │   ├ 成功：產生一次性代碼存進 handoff_codes（60 秒），舊 cookie 不清除（回退時還要用），
   │   │      302 到 https://guessai-canvas.6yuwei.com/api/guessai_canvas/handoff/complete?code=<代碼>&return=<路徑>
   │   └ 失敗：302 到 https://guessai-canvas.6yuwei.com<路徑>?handoff=none
   └（沒有 cookie 也走失敗）
@@ -110,6 +110,7 @@ GET /api/guessai_canvas/handoff/complete?code=&return=
 | --- | --- |
 | `return` | 必須以 `/` 開頭、不能以 `//` 開頭，否則改用 `/` |
 | 一次性代碼 | 32 bytes 隨機值，資料庫只存 SHA-256；60 秒 TTL；用過就刪 |
+| 舊 cookie | 不清除。切換如果回退，舊系統還能用它認出玩家；它只會送到 `api.6yuwei.com`，搬移結束後沒有任何程式讀它，1 年內自然過期 |
 | 每個瀏覽器最多跳一次 | 前端先寫 `localStorage` 標記再跳轉，不會無限跳 |
 | 讀取的 cookie | handoff 只讀 `guessai_canvas_access_token`。瀏覽器也會帶上 `api.6yuwei.com` 的其他 cookie（例如 6yuwei 的 session），本服務一律不讀、不記錄 |
 | 記錄 | 只記成功或失敗的次數，不記通行證內容 |
