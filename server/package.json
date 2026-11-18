@@ -1,0 +1,29 @@
+{
+  "name": "guessai-canvas-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Guessai Canvas game server: guest players, canvases, chat and admin",
+  "type": "module",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --env-file-if-exists=.env --watch src/server.js",
+    "test": "node --test \"tests/**/*.test.js\""
+  },
+  "dependencies": {
+    "@google/genai": "^3.6.0",
+    "express": "^5.3.0",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.12.2",
+    "multer": "^2.5.0",
+    "socket.io": "^4.8.4",
+    "xss": "^1.0.17"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.8.4"
+  }
+}

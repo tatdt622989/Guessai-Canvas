@@ -1,0 +1,7 @@
+node_modules
+dist
+server/node_modules
+server/tests
+server/.env
+.git
+.pnpm-store

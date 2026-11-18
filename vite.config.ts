@@ -26,10 +26,11 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       proxy: {
+        // The game server (server/) serves the API under /api itself
         '/api': {
-          target: env.VITE_DEV_PROXY_TARGET || 'http://localhost:3001',
+          target: env.VITE_DEV_PROXY_TARGET || 'http://localhost:3010',
           changeOrigin: true,
-          rewrite: (proxyPath) => proxyPath.replace(/^\/api/, ''),
+          ws: true,
         },
       },
     },

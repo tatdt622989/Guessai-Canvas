@@ -1,0 +1,17 @@
+services:
+  guessai:
+    build: .
+    expose:
+      - "3000"
+    environment:
+      TRUST_PROXY: "true"
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:-https://guessai-canvas.6yuwei.com}
+      MONGODB_URI: ${MONGODB_URI}
+      GUESSAI_GUEST_SECRET: ${GUESSAI_GUEST_SECRET}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      RECAPTCHA_SECRET_KEY: ${RECAPTCHA_SECRET_KEY}
+    volumes:
+      - uploads:/data/uploads
+    restart: unless-stopped
+volumes:
+  uploads:
