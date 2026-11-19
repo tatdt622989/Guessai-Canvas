@@ -1,5 +1,7 @@
 // Needs MongoDB. Skipped unless GUESSAI_TEST_MONGO_URL is set, for example
-// GUESSAI_TEST_MONGO_URL=mongodb://127.0.0.1:27017/guessai_test npm test
+// GUESSAI_TEST_MONGO_URL=mongodb://127.0.0.1:27017/ npm test
+// The tests always use their own database, guessai_test, and drop it before and after,
+// whatever database the URL names, so they can never wipe real data.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import http from 'node:http';
@@ -32,7 +34,7 @@ const drawn = [];
 
 before(async () => {
   if (!url) return;
-  connection = await mongoose.createConnection(url).asPromise();
+  connection = await mongoose.createConnection(url, { dbName: 'guessai_test' }).asPromise();
   await connection.dropDatabase();
   models = createModels(connection);
   uploadDir = fs.mkdtempSync(path.join(os.tmpdir(), 'guessai-up-'));

@@ -32,7 +32,7 @@ pnpm install && pnpm dev                                           # http://loca
 ```bash
 cd server
 npm test                                                             # 不連資料庫的部分
-GUESSAI_TEST_MONGO_URL=mongodb://127.0.0.1:27017/guessai_test npm test   # 全部
+GUESSAI_TEST_MONGO_URL=mongodb://127.0.0.1:27017/ npm test   # 全部；只會用並刪除 guessai_test 資料庫
 ```
 
 ### 環境變數（server）
