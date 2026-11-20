@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useAppDispatch } from '@/store/store.ts';
 import { fetchUser } from "@/store/userSlice.ts";
+import { setSignUpModal } from "@/components/Modal/ModalSlice.ts";
+import { startHandoffOnce, takeHandoffResult } from "@/handoff";
 import { addToast, removeToast } from "./components/Toast/ToastSlice.ts";
 import { socket } from "./socket";
 import "./App.css";
@@ -55,8 +57,15 @@ function App() {
   };
 
   useEffect(() => {
-    // get user data
-    dispatch(fetchUser());
+    // get user data; a player without a pass here may still have one on the old API domain
+    const cameBackWithoutPass = takeHandoffResult();
+    dispatch(fetchUser())
+      .unwrap()
+      .catch((error: { status?: number }) => {
+        if (error?.status === 403 && !cameBackWithoutPass && startHandoffOnce()) {
+          dispatch(setSignUpModal(false));
+        }
+      });
     // detect user visibility
     const handleVisibilityChange = () => {
       if (document.hidden) {
@@ -114,6 +123,18 @@ function App() {
         setIsCanvasLoading(true);
       } else if (data.status === 'done') {
         setIsCanvasLoading(false);
+      } else if (data.status === 'error') {
+        // No new canvas this time; the next message tries again
+        setIsCanvasLoading(false);
+        const toastID = Date.now();
+        dispatch(addToast({
+          id: toastID,
+          type: "error",
+          description: "The new canvas could not be drawn. Send a message to try again.",
+        }));
+        setTimeout(() => {
+          dispatch(removeToast(toastID));
+        }, 6000);
       }
     }
     socket.on("connect", onConnect);

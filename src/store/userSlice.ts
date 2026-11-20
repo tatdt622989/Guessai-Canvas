@@ -15,7 +15,8 @@ const fetchUser = createAsyncThunk(
       credentials: "include",
     });
     if (!response.ok) {
-      throw new Error("failed to fetch user");
+      // 403 means this browser has no pass on this site yet
+      return thunkAPI.rejectWithValue({ status: response.status });
     }
     thunkAPI.dispatch(setSignUpModal(false));
     return (await response.json()) as SimpleUser;
