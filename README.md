@@ -18,6 +18,7 @@ Guessai 是獨立服務，不再依賴 `6yuwei_api`，也和 6yuwei 帳號無關
 | 遊戲伺服器（Express + socket.io + MongoDB） | `server/` |
 | 管理頁 `/admin` | `server/src/admin/`，伺服器直接產生，不用另外建置 |
 | 通行證搬移（過渡期） | `server/src/handoff.js`、`src/handoff.ts` |
+| 切換當天搬資料（MIG-05） | `server/scripts/migrate.js`、`server/src/migration.js`（`docs/server.md` §7） |
 | 部署 | 根目錄 `Dockerfile`、`compose.yaml`：一個容器提供前端、`/api/guessai_canvas/*`、socket.io 和 `/admin` |
 
 ## 本機開發
@@ -43,7 +44,7 @@ npm test                                                     # 不連資料庫�
 GUESSAI_TEST_MONGO_URL=mongodb://127.0.0.1:27017/ npm test   # 全部
 ```
 
-連資料庫的測試只會用 `guessai_test`、`guessai_test_handoff`、`guessai_test_admin` 三個資料庫，開始和結束時都會刪掉它們，不管網址指向哪個資料庫。
+連資料庫的測試只會用 `guessai_test`、`guessai_test_handoff`、`guessai_test_admin`、`guessai_test_migrate`、`guessai_test_migrate_old` 五個資料庫，開始和結束時都會刪掉它們，不管網址指向哪個資料庫。
 
 前端：`pnpm lint`、`pnpm build`。
 

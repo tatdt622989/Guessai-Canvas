@@ -169,6 +169,18 @@ GET /api/guessai_canvas/handoff/complete?code=&return=
 
 搬移（MIG-05）時，collection 名稱以 `6yuwei` 資料庫裡實際的名稱為準（Mongoose 依 model 名稱自動命名），新服務的 model 明確指定同樣的名稱。玩家頭像從 `6yuwei_api` 的 `uploads/guessai_canvas/img` 複製到本服務的 volume。
 
+切換當天用 `server/scripts/migrate.js` 執行，先加 `--dry-run` 看報告：
+
+```sh
+OLD_MONGODB_URI=<6yuwei，只需要讀取權限> MONGODB_URI=<guessai_canvas> \
+  node scripts/migrate.js --photos <舊 API 的 uploads/guessai_canvas/img> --dry-run
+```
+
+- 四個 collection 原樣複製，`_id` 和所有欄位不變，舊通行證和彼此的參照都照常有效。
+- 舊資料只讀不改，什麼都不刪。新資料庫已經有的文件、upload 資料夾已經有的頭像都不覆蓋，所以重跑結果相同。
+- 報告列出每個 collection 的筆數；有沒複製到的文件時指令會失敗（結束碼 1）。頭像找不到檔案或檔名不正常的，列在 `missingFile`、`refused`，那些玩家顯示預設頭像。
+- 頭像寫到 `UPLOAD_DIR`（預設 `/data/uploads/img`），所以要在同時掛著舊 API 上傳資料夾（唯讀）和本服務 volume 的容器裡執行。
+
 ## 8. 環境變數
 
 | 名稱 | 說明 |
