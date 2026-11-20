@@ -1,6 +1,6 @@
 # Guessai 獨立服務規格（SPEC-05）
 
-> 規格，尚未實作。依據 `jp.6yuwei.com/docs/BLUEPRINT.md` §8.6。
+> 規格，已實作（GUE-01～05）。依據 `jp.6yuwei.com/docs/BLUEPRINT.md` §8.6。
 
 Guessai 的後端目前寫在 `6yuwei_api` 裡（`routes/guessai_canvas.js`、`controllers/guessai_canvas.js`、`models/guessai_canvas.js`、`sockets/`）。這次把它搬到這個 repo 的 `server/`，成為獨立服務：
 
@@ -39,11 +39,11 @@ Guessai 的後端目前寫在 `6yuwei_api` 裡（`routes/guessai_canvas.js`、`c
 | `GET /simple_user/` | 通行證 | 玩家文件 `{ _id, name, photo, score, createdAt, updatedAt }` | 沒有或無效回 403 |
 | `PUT /simple_user/` | 通行證；multipart：`photo` | `{ message: 'success', simpleUser }` | 換頭像，刪掉舊檔 |
 | `GET /user_photo/:filename/` | — | 圖片 | 檔名只接受上傳時產生的格式 |
-| `GET /msg_list/` | — | 最近 1000 則訊息（舊到新），`user` 展開成玩家 | |
+| `GET /msg_list/` | — | 最近 1000 則訊息（舊到新），`user` 展開成玩家 | 玩家已被刪除的訊息不列出（前端要顯示發言者） |
 | `GET /canvas/` | — | 目前畫布的 HTML | CSP 見 §3.1 |
 | `GET /canvas/:id/` | — | 指定畫布的 HTML | CSP 見 §3.1；找不到 404 |
 | `GET /ranking/` | — | 分數最高的 30 位玩家 | |
-| `GET /canvas_list/?page=&keyword=` | — | `{ canvasList, currentPage, solvedProbability, resultTotal, resultTotalPage, total }` | 每頁 12 筆，不含目前的畫布 |
+| `GET /canvas_list/?page=&keyword=` | — | `{ canvasList, currentPage, solvedProbability, resultTotal, resultTotalPage, total }` | 每頁 12 筆，不含目前的畫布；答對的人已被刪除時，`correctRespondent` 是 `{ _id, name: '', photo: '' }`，畫廊仍顯示已解出 |
 
 不搬的端點：`GET /`（Hello World）、`PUT /canvas/`（空函式）、`POST /theme/` 和 `GET /generate/`（改到管理頁）。
 
@@ -77,6 +77,8 @@ Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; 
 
 遊戲規則沿用：答對加 100 分、重新產生畫布；超過 4 分鐘且猜了 5 次以上沒人答對，就公布答案並換題。
 
+和舊 API 不同的一點：Gemini 畫不出畫布時，伺服器送出 `server canvas` `{ status: 'error' }`，前端停止等待並提示玩家，下一則訊息會再試一次（舊 API 不通知，玩家畫面會一直停在載入中）。
+
 ## 5. 通行證搬移（過渡期 90 天）
 
 舊通行證是 `api.6yuwei.com` 發的 cookie，只會送回 `api.6yuwei.com`。用下面的流程搬到 `guessai-canvas.6yuwei.com`。
@@ -90,7 +92,8 @@ Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; 
       └ 403：
           ├ localStorage 有 guessai_handoff_done：顯示輸入暱稱的視窗，結束
           └ 沒有：寫入 guessai_handoff_done，整頁跳到
-              https://api.6yuwei.com/guessai_canvas/handoff?return=<目前路徑>
+              <VITE_HANDOFF_URL>?return=<目前路徑>
+              （正式 https://api.6yuwei.com/guessai_canvas/handoff；寫不進 localStorage 就不跳）
 
 GET https://api.6yuwei.com/guessai_canvas/handoff（反向代理轉給本服務）
   ├ 讀 cookie guessai_canvas_access_token，用 GUESSAI_GUEST_SECRET 驗證，找到玩家
@@ -114,6 +117,9 @@ GET /api/guessai_canvas/handoff/complete?code=&return=
 | 每個瀏覽器最多跳一次 | 前端先寫 `localStorage` 標記再跳轉，不會無限跳 |
 | 讀取的 cookie | handoff 只讀 `guessai_canvas_access_token`。瀏覽器也會帶上 `api.6yuwei.com` 的其他 cookie（例如 6yuwei 的 session），本服務一律不讀、不記錄 |
 | 記錄 | 只記成功或失敗的次數，不記通行證內容 |
+| 回來時 | 前端看到 `?handoff=none` 就從網址拿掉，並顯示輸入暱稱的視窗 |
+| 前端設定 | 建置參數 `VITE_HANDOFF_URL`；空字串表示不搬移（本機開發、第 90 天之後） |
+| 關閉 | `HANDOFF_ENABLED=false` 時兩個路徑都回 404 |
 | 結束 | 第 90 天移除反向代理規則；前端搬移程式在同一天的版本刪除 |
 
 ### 5.3 反向代理
@@ -128,11 +134,12 @@ GET /api/guessai_canvas/handoff/complete?code=&return=
 
 | 項目 | 規則 |
 | --- | --- |
-| 帳號 | 只有一組管理員密碼，雜湊存在 `GUESSAI_ADMIN_PASSWORD_HASH`（scrypt，用 `server/scripts/hash-password.js` 產生） |
-| session | cookie `__Host-guessai_admin`：HttpOnly、Secure、SameSite=Strict；閒置 30 分鐘、最長 8 小時；存在 MongoDB `admin_sessions` |
-| CSRF | 每個表單帶 session 綁定的 token |
-| 限流 | 登入每個 IP 15 分鐘 10 次 |
-| 其他 | `noindex`、`Cache-Control: no-store`、CSP 只允許自己 |
+| 帳號 | 只有一組管理員密碼，雜湊存在 `GUESSAI_ADMIN_PASSWORD_HASH`：scrypt，格式 `scrypt:N:r:p:salt:hash`，用 `server/scripts/hash-password.js` 產生。分隔用 `:` 不用 `$`，因為 compose 和 Coolify 會把 `$` 當成變數 |
+| session | cookie `__Host-guessai_admin`（本機 http 開發時是 `guessai_admin`）：HttpOnly、Secure、SameSite=Strict；閒置 30 分鐘、最長 8 小時；存在 MongoDB `admin_sessions`，只存 cookie 值用 `GUESSAI_SESSION_SECRET` 算出的 HMAC |
+| CSRF | 每個 POST 要從本站送出（`Origin` 必須是本站），登入以外的表單還要帶 session 綁定的 token |
+| 限流 | 登入每個 IP 15 分鐘 10 次；密碼正確後重新計算 |
+| 其他 | `noindex`、`Cache-Control: no-store`、CSP 只允許自己（沒有內嵌 script 和 style）；`Referrer-Policy: same-origin`，表單送出時瀏覽器才會帶 `Origin` |
+| 沒設定 | 開發環境可以不設兩個值，`/admin` 回 503；正式環境沒設就不啟動 |
 
 ### 6.2 功能
 
@@ -141,7 +148,7 @@ GET /api/guessai_canvas/handoff/complete?code=&return=
 | 主題 | 列出；一次新增多筆（中、英、日三種語言）；刪除；重複的中文主題略過（沿用舊規則） |
 | 畫布 | 列出（含答案、是否解出、答對的人）；預覽；刪除；「立即產生新畫布」（取代舊的 `GET /generate/`，已有未解畫布時提示） |
 | 聊天 | 最近的訊息；刪除單則訊息 |
-| 玩家 | 搜尋暱稱；改名；刪除玩家（連同頭像）；把單一玩家的分數歸零 |
+| 玩家 | 搜尋暱稱；改名；刪除玩家（連同頭像和這位玩家的聊天訊息）；把單一玩家的分數歸零 |
 | 排行榜 | 全部分數歸零（要再輸入一次確認） |
 
 管理頁的每個操作都記錄在 `admin_logs`（時間、動作、對象）。
@@ -171,11 +178,12 @@ GET /api/guessai_canvas/handoff/complete?code=&return=
 | `GUESSAI_GUEST_SECRET` | 訪客通行證的簽章金鑰（值沿用舊 `SECRET_KEY`） |
 | `GEMINI_API_KEY` | 產生畫布 |
 | `RECAPTCHA_SECRET_KEY` | 建立暱稱時驗證 |
-| `GUESSAI_ADMIN_PASSWORD_HASH` | 管理員密碼的 scrypt 雜湊 |
-| `GUESSAI_SESSION_SECRET` | 管理頁 session 的簽章金鑰 |
+| `GUESSAI_ADMIN_PASSWORD_HASH` | 管理員密碼的 scrypt 雜湊；正式環境必填 |
+| `GUESSAI_SESSION_SECRET` | 管理頁 session 的金鑰，至少 32 個字元；正式環境必填 |
 | `PUBLIC_ORIGIN` | `https://guessai-canvas.6yuwei.com`，socket.io 來源檢查和搬移的導回網址 |
 | `HANDOFF_ENABLED` | `true` 時開啟 §5 的搬移端點；第 90 天改成 `false` 再刪程式 |
 | `TRUST_PROXY` | Coolify 前面有反向代理，設 `true` |
+| `VITE_HANDOFF_URL`（建置參數） | 前端搬移要去的路徑；staging 是 `https://api-stg.6yuwei.com/guessai_canvas/handoff` |
 
 ## 9. 測試
 
