@@ -1,6 +1,10 @@
 services:
   guessai:
-    build: .
+    build:
+      context: .
+      args:
+        # Staging: https://api-stg.6yuwei.com/guessai_canvas/handoff. Empty after day 90.
+        VITE_HANDOFF_URL: ${VITE_HANDOFF_URL-https://api.6yuwei.com/guessai_canvas/handoff}
     expose:
       - "3000"
     environment:
@@ -10,6 +14,9 @@ services:
       GUESSAI_GUEST_SECRET: ${GUESSAI_GUEST_SECRET}
       GEMINI_API_KEY: ${GEMINI_API_KEY}
       RECAPTCHA_SECRET_KEY: ${RECAPTCHA_SECRET_KEY}
+      GUESSAI_ADMIN_PASSWORD_HASH: ${GUESSAI_ADMIN_PASSWORD_HASH}
+      GUESSAI_SESSION_SECRET: ${GUESSAI_SESSION_SECRET}
+      HANDOFF_ENABLED: ${HANDOFF_ENABLED:-true}
     volumes:
       - uploads:/data/uploads
     restart: unless-stopped

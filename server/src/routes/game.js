@@ -75,7 +75,8 @@ export const createGameRouter = ({
 
   router.get('/msg_list/', async (req, res) => {
     const list = await Messages.find().populate('user').sort({ createdAt: -1 }).limit(1000);
-    return res.json(list.reverse());
+    // The chat shows each sender's name, so messages of a deleted player are left out
+    return res.json(list.filter((message) => message.user).reverse());
   });
 
   const canvasHeaders = (res) => res.set({
@@ -120,8 +121,18 @@ export const createGameRouter = ({
       query.$or = ['answerTW', 'answerEN', 'answerJP'].map((field) => ({ [field]: { $regex: pattern, $options: 'i' } }));
     }
     const resultTotal = await GuessAICanvas.countDocuments(query);
-    const canvasList = await GuessAICanvas.find(query).populate('correctRespondent')
-      .sort({ createdAt: -1 }).skip((page - 1) * PAGE_SIZE).limit(PAGE_SIZE);
+    const canvases = await GuessAICanvas.find(query).sort({ createdAt: -1 }).skip((page - 1) * PAGE_SIZE).limit(PAGE_SIZE);
+    // The gallery marks a canvas solved when it has a respondent. A deleted player still solved it.
+    const solvers = new Map((await SimpleUser.find({ _id: { $in: canvases.map((c) => c.correctRespondent).filter(Boolean) } }))
+      .map((player) => [player.id, player]));
+    const canvasList = canvases.map((canvas) => {
+      const item = canvas.toJSON();
+      if (canvas.correctRespondent) {
+        const id = String(canvas.correctRespondent);
+        item.correctRespondent = solvers.get(id)?.toJSON() ?? { _id: id, name: '', photo: '' };
+      }
+      return item;
+    });
 
     return res.json({
       canvasList,

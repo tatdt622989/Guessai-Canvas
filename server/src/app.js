@@ -5,11 +5,12 @@ import helmet from 'helmet';
 import { createGameRouter } from './routes/game.js';
 
 /*
- * One Express app for the whole site: the game API under /api/guessai_canvas and the built
- * frontend for every other path.
+ * One Express app for the whole site: the game API under /api/guessai_canvas, the pass handoff
+ * (§5), the admin pages under /admin, and the built frontend for every other path.
+ * handoffRouter and adminRouter are optional, so game tests can leave them out.
  */
 export const createApp = ({
-  config, models, tokens, recaptcha, uploads, isHealthy = async () => true,
+  config, models, tokens, recaptcha, uploads, handoffRouter, adminRouter, isHealthy = async () => true,
 }) => {
   const app = express();
   app.set('trust proxy', config.trustProxy);
@@ -23,6 +24,9 @@ export const createApp = ({
   // The canvas pages set their own sandbox policy, so the shared headers skip CSP
   app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
 
+  if (handoffRouter) app.use(handoffRouter);
+  if (adminRouter) app.use('/admin', adminRouter);
+
   app.use('/api/guessai_canvas', createGameRouter({
     models, tokens, recaptcha, uploads,
   }));
@@ -34,7 +38,8 @@ export const createApp = ({
     // The frontend routes in the browser, so unknown paths get the app
     app.get(/^(?!\/api\/).*/, (req, res) => {
       res.set('Cache-Control', 'no-cache');
-      res.sendFile(indexFile);
+      // A root keeps send's dot-folder check to the file name, so a checkout under .worktrees/ works
+      res.sendFile('index.html', { root: config.staticDir });
     });
   }
 

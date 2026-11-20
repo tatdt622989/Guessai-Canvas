@@ -1,10 +1,16 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import jwt from 'jsonwebtoken';
-import { hideAnswer } from '../src/canvas/generator.js';
+import { hashPassword, parsePasswordHash, verifyPassword } from '../src/admin/password.js';
+import { createLoginLimiter } from '../src/admin/rateLimit.js';
+import { parseThemeLines } from '../src/admin/service.js';
+import { adminCookieName, sameToken } from '../src/admin/sessions.js';
+import { escape } from '../src/admin/views.js';
+import { createCanvasGenerator, hideAnswer } from '../src/canvas/generator.js';
 import { CANVAS_CSP } from '../src/canvas/pages.js';
 import { ConfigError, loadConfig } from '../src/config.js';
 import { cookieFrom, createGuestTokens } from '../src/guestToken.js';
+import { safeReturnPath, withNoHandoff } from '../src/handoff.js';
 import { createRecaptcha } from '../src/recaptcha.js';
 import { safeFileName } from '../src/uploads.js';
 
@@ -66,12 +72,89 @@ test('reCAPTCHA needs success and a score of at least 0.5', async () => {
   assert.deepEqual(await createRecaptcha({ secret: '' })('t'), { ok: false, status: 500 });
 });
 
+// A real hash of 'correct horse battery' made by scripts/hash-password.js
+const ADMIN_HASH = 'scrypt:32768:8:1:v3ciBsyzBWNxmgRobcetGw:SN3MrYZF_qzUVGnHZaZL09SyDiUx0MF7QfYLePUQ3OY';
+const ADMIN_ENV = { GUESSAI_ADMIN_PASSWORD_HASH: ADMIN_HASH, GUESSAI_SESSION_SECRET: 's'.repeat(32) };
+
 test('configuration requires the origin, database and guest secret', () => {
   const env = { PUBLIC_ORIGIN: 'https://g.example.com/', MONGODB_URI: 'mongodb://x/y', GUESSAI_GUEST_SECRET: OLD_SECRET };
-  const config = loadConfig({ ...env, NODE_ENV: 'production' });
+  const config = loadConfig({ ...env, ...ADMIN_ENV, NODE_ENV: 'production' });
   assert.equal(config.publicOrigin, 'https://g.example.com');
   assert.deepEqual(config.allowedOrigins, ['https://g.example.com']);
   ['PUBLIC_ORIGIN', 'MONGODB_URI', 'GUESSAI_GUEST_SECRET'].forEach((name) => {
     assert.throws(() => loadConfig({ ...env, [name]: '' }), ConfigError);
   });
+});
+
+test('production needs the admin settings; bad values stop the server', () => {
+  const env = { PUBLIC_ORIGIN: 'https://g.example.com', MONGODB_URI: 'mongodb://x/y', GUESSAI_GUEST_SECRET: OLD_SECRET };
+  assert.throws(() => loadConfig({ ...env, NODE_ENV: 'production' }), /required in production/);
+  assert.throws(() => loadConfig({ ...env, ...ADMIN_ENV, NODE_ENV: 'production', GUESSAI_SESSION_SECRET: '' }), ConfigError);
+  // Development may leave the admin off
+  const dev = loadConfig(env);
+  assert.equal(dev.adminPasswordHash, '');
+  assert.equal(dev.handoffEnabled, false);
+  assert.throws(() => loadConfig({ ...env, GUESSAI_ADMIN_PASSWORD_HASH: 'plain-password' }), /not a hash/);
+  assert.throws(() => loadConfig({ ...env, ...ADMIN_ENV, GUESSAI_SESSION_SECRET: 'short' }), /at least 32/);
+  assert.throws(() => loadConfig({ ...env, HANDOFF_ENABLED: 'yes' }), /true or false/);
+  assert.equal(loadConfig({ ...env, HANDOFF_ENABLED: 'true' }).handoffEnabled, true);
+});
+
+test('admin passwords are checked against their scrypt hash', async () => {
+  assert.equal(await verifyPassword('correct horse battery', ADMIN_HASH), true);
+  assert.equal(await verifyPassword('wrong horse battery', ADMIN_HASH), false);
+  assert.equal(await verifyPassword('', ADMIN_HASH), false);
+  assert.equal(await verifyPassword('correct horse battery', 'plain'), false);
+  const fresh = await hashPassword('another password', { N: 2 ** 14, r: 8, p: 1 });
+  assert.notEqual(fresh, await hashPassword('another password', { N: 2 ** 14, r: 8, p: 1 }));
+  assert.equal(await verifyPassword('another password', fresh), true);
+  ['scrypt:1000:8:1:aaaaaaaaaaaaaaaaaaaaaa:bbbb', 'scrypt$32768$8$1$aaaaaaaaaaaaaaaaaaaaaa$bbbb', 'bcrypt$x', ''].forEach((value) => assert.equal(parsePasswordHash(value), null));
+});
+
+test('handoff return paths stay on this site', () => {
+  assert.equal(safeReturnPath('/gallery/2?x=1#top'), '/gallery/2?x=1#top');
+  ['//evil.example', 'https://evil.example', '/\\evil.example', 'gallery', '/a\nb', undefined, `/${'a'.repeat(600)}`]
+    .forEach((value) => assert.equal(safeReturnPath(value), '/'));
+  assert.equal(withNoHandoff('/'), '/?handoff=none');
+  assert.equal(withNoHandoff('/gallery/2?x=1#top'), '/gallery/2?x=1&handoff=none#top');
+});
+
+test('theme lines take a comma, a tab or a bar between three names', () => {
+  const { themes, invalidLines } = parseThemeLines('蘋果, Apple, りんご\n\n香蕉\tBanana\tバナナ\n狗｜Dog｜いぬ\n貓，Cat\n,,');
+  assert.deepEqual(themes.map((theme) => theme.themeEN), ['Apple', 'Banana', 'Dog']);
+  assert.deepEqual(invalidLines, [5, 6]);
+});
+
+test('the login limit counts per IP, and a correct password clears it', () => {
+  let at = 0;
+  const limiter = createLoginLimiter({ limit: 2, windowMs: 1000, now: () => at });
+  assert.deepEqual([limiter.allow('a'), limiter.allow('a'), limiter.allow('a'), limiter.allow('b')], [true, true, false, true]);
+  at = 1001;
+  assert.equal(limiter.allow('a'), true);
+  limiter.allow('a');
+  limiter.reset('a');
+  assert.equal(limiter.allow('a'), true);
+});
+
+test('admin cookies, tokens and escaping', () => {
+  assert.equal(adminCookieName(true), '__Host-guessai_admin');
+  assert.equal(adminCookieName(false), 'guessai_admin');
+  assert.equal(sameToken('abc', 'abc'), true);
+  assert.equal(sameToken('abc', 'abd'), false);
+  assert.equal(sameToken('abc', undefined), false);
+  assert.equal(escape('<a href="x">\'&'), '&#60;a href=&#34;x&#34;&#62;&#39;&#38;');
+});
+
+test('when the drawing fails, players are told and nothing is saved', async () => {
+  const saved = [];
+  const heard = [];
+  const models = {
+    GuessAICanvas: { findOne: () => ({ sort: async () => null }), create: async (doc) => saved.push(doc) },
+    Theme: { countDocuments: async () => 1, findOne: () => ({ skip: async () => ({ themeEN: 'Apple' }) }) },
+  };
+  const generator = createCanvasGenerator({ models, draw: async () => null });
+  const outcome = await generator.generate({ emit: (name, payload) => heard.push({ name, payload }) });
+  assert.deepEqual(outcome, { ok: false, status: 502, error: 'Failed to generate canvas' });
+  assert.deepEqual(heard, [{ name: 'server canvas', payload: { status: 'error', message: 'Failed to generate canvas' } }]);
+  assert.equal(saved.length, 0);
 });

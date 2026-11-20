@@ -209,3 +209,26 @@ test('the built frontend is served for app paths, not for unknown API paths', { 
   assert.equal((await fetch(`${base}/api/guessai_canvas/theme/`, { method: 'POST' })).status, 404);
   assert.equal((await fetch(`${base}/api/guessai_canvas/generate/`)).status, 404);
 });
+
+test('a deleted player leaves no gap in the chat and the gallery', { skip: !url }, async () => {
+  const gone = await models.SimpleUser.create({ name: '已刪除', score: 0 });
+  await models.Messages.create({ message: 'orphan', user: gone._id, isCorrect: true });
+  const canvas = await models.GuessAICanvas.create({
+    canvas: '<canvas></canvas>', answerTW: '月亮', answerEN: 'Moon', answerJP: '月', solved: true, correctRespondent: gone._id,
+  });
+  // Keep it out of the "current canvas" slot, which the gallery skips
+  await models.GuessAICanvas.create({
+    canvas: '<canvas></canvas>', answerTW: '太陽', answerEN: 'Sun', answerJP: '太陽', solved: false,
+  });
+  await gone.deleteOne();
+
+  const messages = await (await fetch(`${base}/api/guessai_canvas/msg_list/`)).json();
+  assert.ok(messages.every((message) => message.user && message.message !== 'orphan'));
+
+  const list = await (await fetch(`${base}/api/guessai_canvas/canvas_list/?page=1&keyword=Moon`)).json();
+  const moon = list.canvasList.find((item) => item._id === canvas.id);
+  assert.deepEqual(moon.correctRespondent, { _id: gone.id, name: '', photo: '' });
+  const solvedByLiving = (await (await fetch(`${base}/api/guessai_canvas/canvas_list/?page=1`)).json())
+    .canvasList.find((item) => item.correctRespondent?.name === '猜題王');
+  assert.ok(solvedByLiving, 'a living solver is still shown in full');
+});

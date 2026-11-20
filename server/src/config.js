@@ -1,6 +1,7 @@
 /**
  * Reads the environment (docs/server.md §8). Missing required values stop the server.
  */
+import { parsePasswordHash } from './admin/password.js';
 
 export class ConfigError extends Error {}
 
@@ -18,6 +19,21 @@ export const loadConfig = (env = process.env, { cwd = process.cwd() } = {}) => {
   const guestSecret = required(env, 'GUESSAI_GUEST_SECRET');
   if (guestSecret.length < 16) throw new ConfigError('GUESSAI_GUEST_SECRET is too short');
 
+  // The admin pages need both values; without them /admin answers that it is not set up.
+  // Production refuses to start without them, so a deploy cannot leave the admin off by mistake.
+  const adminPasswordHash = String(env.GUESSAI_ADMIN_PASSWORD_HASH ?? '').trim();
+  const sessionSecret = String(env.GUESSAI_SESSION_SECRET ?? '').trim();
+  if (adminPasswordHash && !parsePasswordHash(adminPasswordHash)) {
+    throw new ConfigError('GUESSAI_ADMIN_PASSWORD_HASH is not a hash from scripts/hash-password.js');
+  }
+  if (sessionSecret && sessionSecret.length < 32) throw new ConfigError('GUESSAI_SESSION_SECRET must be at least 32 characters');
+  if (production && (!adminPasswordHash || !sessionSecret)) {
+    throw new ConfigError('GUESSAI_ADMIN_PASSWORD_HASH and GUESSAI_SESSION_SECRET are required in production');
+  }
+  if (env.HANDOFF_ENABLED !== undefined && !['true', 'false'].includes(env.HANDOFF_ENABLED)) {
+    throw new ConfigError('HANDOFF_ENABLED must be true or false');
+  }
+
   return {
     production,
     port: Number(env.PORT ?? 3010),
@@ -31,5 +47,8 @@ export const loadConfig = (env = process.env, { cwd = process.cwd() } = {}) => {
     recaptchaSecret: env.RECAPTCHA_SECRET_KEY ?? '',
     uploadDir: env.UPLOAD_DIR || '/data/uploads/img',
     staticDir: env.STATIC_DIR || `${cwd}/../dist`,
+    adminPasswordHash,
+    sessionSecret,
+    handoffEnabled: env.HANDOFF_ENABLED === 'true',
   };
 };

@@ -115,9 +115,10 @@ export const createCanvasGenerator = ({ models, draw }) => {
       const theme = await Theme.findOne().skip(Math.floor(Math.random() * themeCount));
       if (!theme) return fail(io, 500, 'Canvas theme not found');
 
-      // On failure nothing is saved, so the next chat message starts another try
+      // On failure nothing is saved, so the next chat message starts another try. Players hear
+      // about it, so their screen stops waiting (the old API left it loading)
       const code = await draw(theme.themeEN);
-      if (!code) return result(false, 502, 'Failed to generate canvas');
+      if (!code) return fail(io, 502, 'Failed to generate canvas');
 
       try {
         await GuessAICanvas.create({
