@@ -3,7 +3,7 @@ services:
     build:
       context: .
       args:
-        # Staging: https://api-stg.6yuwei.com/guessai_canvas/handoff. Empty after day 90.
+        # Empty after day 90
         VITE_HANDOFF_URL: ${VITE_HANDOFF_URL-https://api.6yuwei.com/guessai_canvas/handoff}
     expose:
       - "3000"

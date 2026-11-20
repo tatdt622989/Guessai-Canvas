@@ -1,23 +1,11 @@
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 import svgr from "vite-plugin-svgr";
 import * as path from 'path';
 
-const normalizeBasePath = (value: string) => {
-  if (!value || value === "/") {
-    return "/";
-  }
-
-  const trimmed = value.replace(/\/+$/, "");
-  return trimmed.startsWith("/") ? `${trimmed}/` : `/${trimmed}/`;
-};
-
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), "");
-
+export default defineConfig(() => {
   return {
-    base: normalizeBasePath(env.VITE_BASE_PATH || "/"),
     plugins: [react(), svgr()],
     resolve: {
       alias: {
@@ -28,7 +16,7 @@ export default defineConfig(({ mode }) => {
       proxy: {
         // The game server (server/) serves the API under /api itself
         '/api': {
-          target: env.VITE_DEV_PROXY_TARGET || 'http://localhost:3010',
+          target: 'http://localhost:3010',
           changeOrigin: true,
           ws: true,
         },

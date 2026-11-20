@@ -1,6 +1,5 @@
 import type { RootState } from "@/store/store";
 import { useAppSelector } from "@/store/store";
-// import { setPhotoURL } from "@/store/UserSlice.ts";
 import { API_URL } from "@/config";
 import UserIcon from "@/assets/user.svg?react";
 import UploadIcon from "@/assets/upload.svg?react";
@@ -20,13 +19,11 @@ function Header(props: Props) {
     (state: RootState) => state.user.photoURL
   );
   const location = useLocation();
-  // const dispatch = useAppDispatch();
 
   const handlePhotoChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (file) {
-        console.log(file);
         const formData = new FormData();
         formData.append("photo", file);
         const res = await fetch(`${API_URL}/guessai_canvas/simple_user/`, {

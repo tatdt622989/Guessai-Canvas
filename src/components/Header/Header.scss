@@ -42,10 +42,6 @@
       position: relative;
       cursor: pointer;
       overflow: hidden;
-      // @include media(767) {
-      //   width: 36px;
-      //   height: 36px;
-      // }
       &:hover {
         .upload-img {
           opacity: 1;
@@ -57,10 +53,6 @@
       .icon {
         width: 32px;
         height: 32px;
-        // @include media(767) {
-        //   width: 26px;
-        //   height: 26px;
-        // }
         path {
           fill: $primary;
         }

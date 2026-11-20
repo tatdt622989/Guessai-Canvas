@@ -7,7 +7,7 @@ import { startHandoffOnce, takeHandoffResult } from "@/handoff";
 import { addToast, removeToast } from "./components/Toast/ToastSlice.ts";
 import { socket } from "./socket";
 import "./App.css";
-import { API_URL, ROOT_PATH } from "@/config";
+import { API_URL } from "@/config";
 import Header from "./components/Header/Header.tsx";
 import Home from "./pages/Home/Home.tsx";
 import Gallery from "./pages/Gallery/Gallery.tsx";
@@ -158,7 +158,7 @@ function App() {
   }, [dispatch]);
 
   return (
-    <Router basename={ROOT_PATH}>
+    <Router>
       <div className="app container">
         <div className="row">
           <Header handleResize={handleResize} />

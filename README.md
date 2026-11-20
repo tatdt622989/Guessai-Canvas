@@ -51,24 +51,21 @@ GUESSAI_TEST_MONGO_URL=mongodb://127.0.0.1:27017/ npm test   # 全部
 
 用 `compose.yaml` 部署，容器內的連接埠是 3000，`/healthz` 是健康檢查。玩家頭像存在 volume `uploads`（容器裡的 `/data/uploads/img`），重新部署不會不見。
 
-| 環境 | 網址 | 建置參數 `VITE_HANDOFF_URL` |
-| --- | --- | --- |
-| 正式 | `https://guessai-canvas.6yuwei.com` | 預設值 `https://api.6yuwei.com/guessai_canvas/handoff` |
-| staging | `https://guessai-stg.6yuwei.com` | `https://api-stg.6yuwei.com/guessai_canvas/handoff` |
+網址是 `https://guessai-canvas.6yuwei.com`，建置參數 `VITE_HANDOFF_URL` 用預設值 `https://api.6yuwei.com/guessai_canvas/handoff`。
 
 ### 環境變數（執行時）
 
 | 名稱 | 必填 | 說明 |
 | --- | --- | --- |
 | `PUBLIC_ORIGIN` | 是 | 網站網址；socket.io 只接受這個來源，搬移完成後也導回這裡 |
-| `MONGODB_URI` | 是 | 資料庫 `guessai_canvas`（staging：`guessai_canvas_stg`）的連線字串，用專用帳號 `guessai_app` |
+| `MONGODB_URI` | 是 | 資料庫 `guessai_canvas` 的連線字串，用專用帳號 `guessai_app` |
 | `GUESSAI_GUEST_SECRET` | 是 | 訪客通行證的簽章金鑰；值沿用舊 `6yuwei_api` 的 `SECRET_KEY`，舊通行證才會繼續有效。換掉的話所有玩家都要重新輸入暱稱 |
 | `GUESSAI_ADMIN_PASSWORD_HASH` | 正式環境必填 | 管理員密碼的雜湊，見「管理頁」 |
 | `GUESSAI_SESSION_SECRET` | 正式環境必填 | 管理頁 session 的金鑰，至少 32 個字元（`openssl rand -base64 32`）；換掉的話管理員要重新登入 |
 | `HANDOFF_ENABLED` | | `true` 時開啟通行證搬移；compose 預設 `true`，第 90 天改成 `false` |
 | `GEMINI_API_KEY` | | 產生畫布；沒有的話玩家會看到「畫布畫不出來」的提示 |
 | `GEMINI_MODEL` | | 預設 `gemini-3.1-flash-lite-preview` |
-| `RECAPTCHA_SECRET_KEY` | | 建立暱稱時驗證；reCAPTCHA 的網站設定要加入 staging 網域 |
+| `RECAPTCHA_SECRET_KEY` | | 建立暱稱時驗證 |
 | `TRUST_PROXY` | | Coolify 前面有反向代理，設 `true`（compose 已設定） |
 | `PORT`、`UPLOAD_DIR`、`STATIC_DIR` | | Dockerfile 已設定，不用改 |
 
@@ -78,7 +75,6 @@ GUESSAI_TEST_MONGO_URL=mongodb://127.0.0.1:27017/ npm test   # 全部
 
 | 名稱 | 說明 |
 | --- | --- |
-| `VITE_API_URL` | Dockerfile 固定為 `/api`（同網域） |
 | `VITE_HANDOFF_URL` | 沒有通行證的玩家第一次進來時要去的舊網域路徑；設成空字串就關閉 |
 
 ## 管理頁

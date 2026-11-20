@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 import type { Message, SimpleUser } from '@/types';
-import { SOCKET_PATH, SOCKET_URL } from "@/config";
+import { SOCKET_PATH } from "@/config";
 
 interface CanvasRes {
   status: string;
@@ -26,15 +26,6 @@ interface ClientToServerEvents {
   'client message': (msg: string) => void;
 }
 
-// interface InterServerEvents {
-//   ping: () => void;
-// }
-
-// interface SocketData {
-//   name: string;
-//   age: number;
-// }
-
 const socketOptions = {
   path: SOCKET_PATH,
   forceNew: true,
@@ -43,4 +34,4 @@ const socketOptions = {
 };
 
 export const socket: Socket<ServerToClientEvents, ClientToServerEvents> =
-  SOCKET_URL ? io(SOCKET_URL, socketOptions) : io(socketOptions);
+  io(socketOptions);

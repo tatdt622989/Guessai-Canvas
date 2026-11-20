@@ -12,9 +12,9 @@ Guessai 的後端目前寫在 `6yuwei_api` 裡（`routes/guessai_canvas.js`、`c
 
 | 項目 | 內容 |
 | --- | --- |
-| 網址 | `https://guessai-canvas.6yuwei.com`（staging：`https://guessai-stg.6yuwei.com`） |
+| 網址 | `https://guessai-canvas.6yuwei.com` |
 | 容器 | 一個 Node 容器：建置時先 build 前端，執行時同一個 Express 提供前端靜態檔、`/api/guessai_canvas/*`、socket.io、`/admin` |
-| 前端建置設定 | `VITE_API_URL=/api`（同網域）；`VITE_SOCKET_URL`、`VITE_SOCKET_PATH` 留空，預設就是 `/api/guessai_canvas/socket.io/` |
+| 前端呼叫 | 同網域的 `/api`，socket.io 路徑 `/api/guessai_canvas/socket.io/`（`src/config.ts`） |
 | 資料庫 | MongoDB `guessai_canvas`，專用帳號 `guessai_app` |
 | 檔案 | 玩家頭像存在 volume `/data/uploads/img` |
 | 反向代理 | 正式環境另外把 `https://api.6yuwei.com/guessai_canvas/handoff` 這一個路徑轉給這個容器，過渡期 90 天（§5） |
@@ -63,7 +63,7 @@ Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; 
 | 項目 | 內容 |
 | --- | --- |
 | 路徑 | `/api/guessai_canvas/socket.io/` |
-| 來源檢查 | 只接受 `https://guessai-canvas.6yuwei.com`（staging、開發環境各自的網址） |
+| 來源檢查 | 只接受 `https://guessai-canvas.6yuwei.com`（開發環境用自己的網址） |
 | 身分 | 連線時從 cookie 讀通行證；沒有通行證可以收訊息，但不能發言 |
 
 事件（沿用）：
@@ -124,7 +124,7 @@ GET /api/guessai_canvas/handoff/complete?code=&return=
 
 ### 5.3 反向代理
 
-正式環境只轉 `api.6yuwei.com/guessai_canvas/handoff` 這一個路徑到本服務的 `/guessai_canvas/handoff`。`api.6yuwei.com` 上其他 `/guessai_canvas/*` 由 `6yuwei_api` 回 404。設定方式在 staging 驗證（OPS-09），寫進 `jp.6yuwei.com/docs/environments.md`。
+正式環境只轉 `api.6yuwei.com/guessai_canvas/handoff` 這一個路徑到本服務的 `/guessai_canvas/handoff`。`api.6yuwei.com` 上其他 `/guessai_canvas/*` 由 `6yuwei_api` 回 404。設定方式在 OPS-09 確認，寫進 `jp.6yuwei.com/docs/environments.md`，切換當天驗證。
 
 ## 6. 管理頁 `/admin`
 
@@ -183,7 +183,7 @@ GET /api/guessai_canvas/handoff/complete?code=&return=
 | `PUBLIC_ORIGIN` | `https://guessai-canvas.6yuwei.com`，socket.io 來源檢查和搬移的導回網址 |
 | `HANDOFF_ENABLED` | `true` 時開啟 §5 的搬移端點；第 90 天改成 `false` 再刪程式 |
 | `TRUST_PROXY` | Coolify 前面有反向代理，設 `true` |
-| `VITE_HANDOFF_URL`（建置參數） | 前端搬移要去的路徑；staging 是 `https://api-stg.6yuwei.com/guessai_canvas/handoff` |
+| `VITE_HANDOFF_URL`（建置參數） | 前端搬移要去的路徑，預設 `https://api.6yuwei.com/guessai_canvas/handoff` |
 
 ## 9. 測試
 
