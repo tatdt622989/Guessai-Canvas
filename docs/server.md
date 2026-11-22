@@ -2,7 +2,7 @@
 
 > 規格，已實作（GUE-01～05）。依據 `jp.6yuwei.com/docs/BLUEPRINT.md` §8.6。
 
-Guessai 的後端目前寫在 `6yuwei_api` 裡（`routes/guessai_canvas.js`、`controllers/guessai_canvas.js`、`models/guessai_canvas.js`、`sockets/`）。這次把它搬到這個 repo 的 `server/`，成為獨立服務：
+Guessai 的後端原本寫在 `6yuwei_api` 裡（`routes/guessai_canvas.js`、`controllers/guessai_canvas.js`、`models/guessai_canvas.js`、`sockets/`），`6yuwei_api` 的 `identity-v2` 已刪除這些程式。現在搬到這個 repo 的 `server/`，成為獨立服務：
 
 - 有自己的資料庫、檔案、密鑰和管理頁。
 - 保留舊的訪客暱稱系統，但只留 Guessai 自己用得到的部分。
@@ -56,7 +56,7 @@ Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; 
 ```
 
 - `sandbox allow-scripts`（沒有 `allow-same-origin`）讓畫布頁變成獨立的來源，讀不到通行證 cookie，也碰不到遊戲頁面。
-- `frame-ancestors` 現在還允許 `app.6yuwei.com`；搬家時確認那裡沒有嵌入畫布，就只留 `'self'`。
+- `frame-ancestors` 只允許 `'self'`。
 
 ## 4. 即時通訊（socket.io）
 
@@ -120,7 +120,7 @@ GET /api/guessai_canvas/handoff/complete?code=&return=
 | 回來時 | 前端看到 `?handoff=none` 就從網址拿掉，並顯示輸入暱稱的視窗 |
 | 前端設定 | 建置參數 `VITE_HANDOFF_URL`；空字串表示不搬移（本機開發、第 90 天之後） |
 | 關閉 | `HANDOFF_ENABLED=false` 時兩個路徑都回 404 |
-| 結束 | 第 90 天移除反向代理規則；前端搬移程式在同一天的版本刪除 |
+| 結束 | 第 90 天移除反向代理規則，`HANDOFF_ENABLED` 改成 `false`、`VITE_HANDOFF_URL` 設成空字串；下一個版本刪掉前後端的搬移程式（README「第 90 天」） |
 
 ### 5.3 反向代理
 
@@ -185,10 +185,11 @@ OLD_MONGODB_URI=<6yuwei，只需要讀取權限> MONGODB_URI=<guessai_canvas> \
 
 | 名稱 | 說明 |
 | --- | --- |
-| `PORT` | 預設 3000 |
+| `PORT` | 程式預設 3010；Dockerfile 設成 3000 |
 | `MONGODB_URI` | `guessai_canvas` 的連線字串 |
 | `GUESSAI_GUEST_SECRET` | 訪客通行證的簽章金鑰（值沿用舊 `SECRET_KEY`） |
 | `GEMINI_API_KEY` | 產生畫布 |
+| `GEMINI_MODEL` | 預設 `gemini-3.1-flash-lite-preview` |
 | `RECAPTCHA_SECRET_KEY` | 建立暱稱時驗證 |
 | `GUESSAI_ADMIN_PASSWORD_HASH` | 管理員密碼的 scrypt 雜湊；正式環境必填 |
 | `GUESSAI_SESSION_SECRET` | 管理頁 session 的金鑰，至少 32 個字元；正式環境必填 |
@@ -196,6 +197,7 @@ OLD_MONGODB_URI=<6yuwei，只需要讀取權限> MONGODB_URI=<guessai_canvas> \
 | `HANDOFF_ENABLED` | `true` 時開啟 §5 的搬移端點；第 90 天改成 `false` 再刪程式 |
 | `TRUST_PROXY` | Coolify 前面有反向代理，設 `true` |
 | `VITE_HANDOFF_URL`（建置參數） | 前端搬移要去的路徑，預設 `https://api.6yuwei.com/guessai_canvas/handoff` |
+| `UPLOAD_DIR`、`STATIC_DIR` | Dockerfile 已設定，不用改 |
 
 ## 9. 測試
 
